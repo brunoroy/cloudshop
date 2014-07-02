@@ -5,14 +5,13 @@
 #include <QFile>
 #include <QTextStream>
 
+#include "modelReader.h"
 #include "shaderSources.h"
 #include "ui_mainWindow.h"
 
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/gtc/matrix_transform.hpp>
-
-//#include <boost/shared_ptr.hpp>
 
 #include <GL/glew.h>
 #include <QGLViewer/qglviewer.h>
@@ -39,6 +38,15 @@ protected:
     void keyPressEvent(QKeyEvent* event);
 
 private:
+    //Camera
+    void centerCamera();
+    void frontCameraView();
+    void rightCameraView();
+    void topCameraView();
+
+    //OpenGL and shaders
+    void loadShaders();
+
     //OpenGL
     GLint _shaderLocation[2];
     GLuint _vertexArrayID;
@@ -56,15 +64,7 @@ private:
 
     Ui_MainWindow *_userInterface;
     std::shared_ptr<Camera> _sceneCamera;
-
-    //Camera
-    void centerCamera();
-    void frontCameraView();
-    void rightCameraView();
-    void topCameraView();
-
-    //OpenGL and shaders
-    void loadShaders();
+    std::shared_ptr<ModelReader> _modelReader;
 };
 
 #endif // SCENEVIEWER_H

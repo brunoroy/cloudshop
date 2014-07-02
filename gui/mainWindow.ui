@@ -45,7 +45,7 @@
      <property name="title">
       <string>Import</string>
      </property>
-     <addaction name="actionGeometry"/>
+     <addaction name="actionImportGeometry"/>
     </widget>
     <addaction name="menuImport"/>
     <addaction name="actionQuit"/>
@@ -162,7 +162,7 @@
     <string>SVM regression</string>
    </property>
   </action>
-  <action name="actionGeometry">
+  <action name="actionImportGeometry">
    <property name="text">
     <string>Geometry</string>
    </property>

@@ -32,6 +32,7 @@ void Mediator::initViewer()
 void Mediator::initSignalSlot()
 {
     //File
+    connect(_userInterface.actionImportGeometry, SIGNAL(triggered()), this, SLOT(importGeometry()));
     connect(_userInterface.actionQuit, SIGNAL(triggered()), this, SLOT(quit()));
 
     //Help
@@ -40,6 +41,20 @@ void Mediator::initSignalSlot()
 
 void Mediator::initUserInterface()
 {
+}
+
+void Mediator::importGeometry()
+{
+    QString geometryFolder = QFileDialog::getExistingDirectory(_mainWindow.get(), "Browse geometry folder", "geo/");
+    if (!geometryFolder.isEmpty())
+    {
+        QDir* geometryFolderContent = new QDir(geometryFolder);
+        geometryFolderContent->setNameFilters(QStringList(QString("*").append(PLY_FILE_EXTENSION)));
+        QStringList geometryFiles = geometryFolderContent->entryList(QDir::Files);
+
+        for (uint i = 0; i < geometryFiles.size(); ++i)
+            std::clog << "file: " << geometryFiles.at(i).toStdString() << std::endl;
+    }
 }
 
 void Mediator::about()

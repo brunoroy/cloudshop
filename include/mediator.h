@@ -20,8 +20,12 @@ public:
     void initUserInterface();
 
 public slots:
-    void about();
+    //File
+    void importGeometry();
     void quit();
+
+    //Help
+    void about();
 
 private:
     std::shared_ptr<QMainWindow> _mainWindow;

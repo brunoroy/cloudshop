@@ -14,6 +14,7 @@ SceneViewer::SceneViewer(Ui_MainWindow *userInterface)
 {
     _userInterface = userInterface;
     _sceneCamera.reset(this->camera());
+    _modelReader.reset(new ModelReader());
 }
 
 SceneViewer::~SceneViewer()

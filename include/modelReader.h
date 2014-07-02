@@ -50,6 +50,7 @@ public:
 
     void addObject(Object object) {_objects.push_back(object);}
     Object getObject(const uint index) {return _objects.at(index);}
+    uint getSceneSize() {return _objects.size();}
 
 private:
     std::vector<Object> _objects;
@@ -68,10 +69,13 @@ public:
     std::string getFileExtension(const std::string filename);
     bool importModel(std::string path);
 
+    bool isSceneEmpty() {return (_sceneObjects.getSceneSize() == 0);}
+    SceneObjects getSceneObjects() {return _sceneObjects;}
+
 private:
     std::vector<std::string> split(const std::string input);
 
-    SceneObjects sceneObjects;
+    SceneObjects _sceneObjects;
 };
 
 #endif // MODELREADER_H
