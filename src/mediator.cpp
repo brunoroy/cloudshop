@@ -52,8 +52,22 @@ void Mediator::importGeometry()
         geometryFolderContent->setNameFilters(QStringList(QString("*").append(PLY_FILE_EXTENSION)));
         QStringList geometryFiles = geometryFolderContent->entryList(QDir::Files);
 
-        for (uint i = 0; i < geometryFiles.size(); ++i)
-            std::clog << "file: " << geometryFiles.at(i).toStdString() << std::endl;
+        if (!geometryFiles.isEmpty())
+        {
+            for (uint i = 0; i < geometryFiles.size(); ++i)
+            {
+                std::string path(geometryFolder.toStdString());
+                path.append("/").append(geometryFiles.at(i).toStdString());
+                //std::clog << path << std::endl;
+                _sceneViewer->importGeometry(path);
+                _sceneViewer->update();
+            }
+            QString message = QString("%1 files loaded.").arg(QString::number(geometryFiles.size()));
+            _userInterface.statusBar->showMessage(message, 3000);
+            //std::clog <<  << std::endl;
+        }
+        else
+            std::clog << geometryFolder.toStdString() << " is empty." << std::endl;
     }
 }
 

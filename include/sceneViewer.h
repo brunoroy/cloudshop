@@ -28,6 +28,7 @@ public:
 
     void drawGeometry();
     bool isReady();
+    void importGeometry(const std::string filename);
 
 public slots:
 

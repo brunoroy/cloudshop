@@ -13,11 +13,12 @@
 #define PCD_FILE_EXTENSION "PCD"
 #define PLY_FILE_EXTENSION "PLY"
 
-class Vertex
+/*class Vertex
 {
 public:
     Vertex(){}
-    Vertex(glm::vec3 position, glm::vec4 color, glm::vec3 normal);
+    Vertex(glm::vec3 position, glm::vec4 color, glm::vec3 normal):
+        _position(position), _color(color), _normal(normal) {}
     ~Vertex(){}
 
     glm::vec3 getPosition() {return _position;}
@@ -28,6 +29,16 @@ private:
     glm::vec3 _position;
     glm::vec4 _color;
     glm::vec3 _normal;
+};*/
+
+struct Vertex
+{
+    Vertex(glm::vec3 position, glm::vec4 color, glm::vec3 normal):
+        position(position), color(color), normal(normal) {}
+
+    glm::vec3 position;
+    glm::vec4 color;
+    glm::vec3 normal;
 };
 
 class Object
@@ -36,10 +47,26 @@ public:
     Object(){}
     ~Object(){}
 
-    Vertex getVertex(const uint index) {return _vertices.at(index);}
+    Vertex getVertex(const uint index)
+    {
+        return Vertex(_positions.at(index), _colors.at(index), _normals.at(index));
+    }
+    void addVertex(Vertex vertex)
+    {
+        _positions.push_back(vertex.position);
+        _colors.push_back(vertex.color);
+        _normals.push_back(vertex.normal);
+    }
+    uint getVertexCount() {return _positions.size();}
+
+    std::vector<glm::vec3> getPositions() {return _positions;}
+    std::vector<glm::vec4> getColors() {return _colors;}
+    std::vector<glm::vec3> getNormals() {return _normals;}
 
 private:
-    std::vector<Vertex> _vertices;
+    std::vector<glm::vec3> _positions;
+    std::vector<glm::vec4> _colors;
+    std::vector<glm::vec3> _normals;
 };
 
 class SceneObjects
@@ -71,6 +98,7 @@ public:
 
     bool isSceneEmpty() {return (_sceneObjects.getSceneSize() == 0);}
     SceneObjects getSceneObjects() {return _sceneObjects;}
+    Object getObject(const uint index) {return _sceneObjects.getObject(index);}
 
 private:
     std::vector<std::string> split(const std::string input);

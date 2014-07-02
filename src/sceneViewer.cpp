@@ -136,7 +136,7 @@ void SceneViewer::loadShaders()
 
 void SceneViewer::drawGeometry()
 {
-    float min = -0.5f;
+    /*float min = -0.5f;
     float max = 0.5f;
 
     std::vector<glm::vec3> points;
@@ -150,44 +150,50 @@ void SceneViewer::drawGeometry()
     points.push_back(glm::vec3(max, 0.0f, max));
     colors.push_back(white);
     points.push_back(glm::vec3(min, 0.0f, max));
-    colors.push_back(white);
+    colors.push_back(white);*/
 
-    glBindBuffer(GL_ARRAY_BUFFER, _vertexBuffer);
-    glBufferData(GL_ARRAY_BUFFER, points.size() * 3 * sizeof(GLfloat), &points.at(0), GL_STREAM_DRAW);
+    for (uint i = 0; i < _modelReader->getSceneObjects().getSceneSize(); ++i)
+    {
+        //std::clog << "draw object " << (i+1) << "." << std::endl;
+        Object object = _modelReader->getObject(i);
 
-    glBindBuffer(GL_ARRAY_BUFFER, _colorBuffer);
-    glBufferData(GL_ARRAY_BUFFER, colors.size() * 4 * sizeof(GLfloat), &colors.at(0), GL_STREAM_DRAW);
+        glBindBuffer(GL_ARRAY_BUFFER, _vertexBuffer);
+        glBufferData(GL_ARRAY_BUFFER, object.getVertexCount() * 3 * sizeof(GLfloat), &object.getPositions().at(0), GL_STREAM_DRAW);
 
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    //glPointSize(5.0f);
+        glBindBuffer(GL_ARRAY_BUFFER, _colorBuffer);
+        glBufferData(GL_ARRAY_BUFFER, object.getVertexCount() * 4 * sizeof(GLfloat), &object.getColors().at(0), GL_STREAM_DRAW);
 
-    glUseProgram(_programID);
+        //glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        //glPointSize(5.0f);
 
-    GLdouble matrix[16];
-    _sceneCamera->getModelViewProjectionMatrix(matrix);
-    _matrix = glm::make_mat4(matrix);
+        glUseProgram(_programID);
 
-    //printMat(_matrix);
+        GLdouble matrix[16];
+        _sceneCamera->getModelViewProjectionMatrix(matrix);
+        _matrix = glm::make_mat4(matrix);
 
-    glUniformMatrix4fv(_matrixID, 1, GL_FALSE, &_matrix[0][0]);
+        //printMat(_matrix);
 
-    glEnableVertexAttribArray(0);
-    glBindBuffer(GL_ARRAY_BUFFER, _vertexBuffer);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
+        glUniformMatrix4fv(_matrixID, 1, GL_FALSE, &_matrix[0][0]);
 
-    glEnableVertexAttribArray(1);
-    glBindBuffer(GL_ARRAY_BUFFER, _colorBuffer);
-    glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 0, (void*)0);
+        glEnableVertexAttribArray(0);
+        glBindBuffer(GL_ARRAY_BUFFER, _vertexBuffer);
+        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
 
-    //glDrawArrays(GL_LINES, 0, 2);
-    //glDrawArrays(GL_TRIANGLES, 0, 3);
-    glDrawArrays(GL_QUADS, 0, points.size());
+        glEnableVertexAttribArray(1);
+        glBindBuffer(GL_ARRAY_BUFFER, _colorBuffer);
+        glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 0, (void*)0);
 
-    glDisableVertexAttribArray(0);
-    glDisableVertexAttribArray(1);
+        //glDrawArrays(GL_LINES, 0, 2);
+        //glDrawArrays(GL_TRIANGLES, 0, 3);
+        glDrawArrays(GL_POINTS, 0, object.getVertexCount());
 
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-    glUseProgram(0);
+        glDisableVertexAttribArray(0);
+        glDisableVertexAttribArray(1);
+
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
+        glUseProgram(0);
+    }
 }
 
 void SceneViewer::draw()
@@ -299,4 +305,9 @@ void SceneViewer::keyPressEvent(QKeyEvent* event)
 bool SceneViewer::isReady()
 {
     //return _scenePlayer->isReady();
+}
+
+void SceneViewer::importGeometry(const std::string filename)
+{
+    _modelReader->importModel(filename);
 }

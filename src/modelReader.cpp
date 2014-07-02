@@ -36,6 +36,7 @@ bool ModelReader::importPLY(const std::string filename)
 
     if (inputFile.is_open())
     {
+        Object object;
         //_points.clear();
         while (std::getline(inputFile, line))
         {
@@ -46,13 +47,18 @@ bool ModelReader::importPLY(const std::string filename)
             else if (isVertexProperties)
             {
                 values = split(line);
-                //glm::vec3 point(std::stof(values.at(0)), std::stof(values.at(1)), std::stof(values.at(2)));
-                //glm::vec3 normal(std::stof(values.at(4)), std::stof(values.at(5)), std::stof(values.at(6)));
+                glm::vec3 point(std::stof(values.at(0)), std::stof(values.at(1)), std::stof(values.at(2)));
+                glm::vec3 normal(std::stof(values.at(4)), std::stof(values.at(5)), std::stof(values.at(6)));
+                glm::vec4 color(std::stof(values.at(7))/255.0f, std::stof(values.at(8))/255.0f, std::stof(values.at(9))/255.0f, 1.0f);
+                object.addVertex(Vertex(point, color, normal));
+                //std::clog << "vertex added." << std::endl;
                 //_points.push_back(point);
                 //_normals.push_back(normal);
             }
         }
         inputFile.close();
+        _sceneObjects.addObject(object);
+        //std::clog << _sceneObjects.getSceneSize() << " objects imported to scene." << std::endl;
         return true;
     }
 
