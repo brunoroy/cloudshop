@@ -41,6 +41,13 @@
     <property name="title">
      <string>File</string>
     </property>
+    <widget class="QMenu" name="menuImport">
+     <property name="title">
+      <string>Import</string>
+     </property>
+     <addaction name="actionGeometry"/>
+    </widget>
+    <addaction name="menuImport"/>
     <addaction name="actionQuit"/>
    </widget>
    <widget class="QMenu" name="menuAbout">
@@ -153,6 +160,11 @@
    </property>
    <property name="text">
     <string>SVM regression</string>
+   </property>
+  </action>
+  <action name="actionGeometry">
+   <property name="text">
+    <string>Geometry</string>
    </property>
   </action>
  </widget>

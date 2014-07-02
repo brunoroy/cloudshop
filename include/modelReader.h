@@ -13,29 +13,65 @@
 #define PCD_FILE_EXTENSION "PCD"
 #define PLY_FILE_EXTENSION "PLY"
 
+class Vertex
+{
+public:
+    Vertex(){}
+    Vertex(glm::vec3 position, glm::vec4 color, glm::vec3 normal);
+    ~Vertex(){}
+
+    glm::vec3 getPosition() {return _position;}
+    glm::vec4 getColor() {return _color;}
+    glm::vec3 getNormal() {return _normal;}
+
+private:
+    glm::vec3 _position;
+    glm::vec4 _color;
+    glm::vec3 _normal;
+};
+
+class Object
+{
+public:
+    Object(){}
+    ~Object(){}
+
+    Vertex getVertex(const uint index) {return _vertices.at(index);}
+
+private:
+    std::vector<Vertex> _vertices;
+};
+
+class SceneObjects
+{
+public:
+    SceneObjects(){}
+    ~SceneObjects(){}
+
+    void addObject(Object object) {_objects.push_back(object);}
+    Object getObject(const uint index) {return _objects.at(index);}
+
+private:
+    std::vector<Object> _objects;
+};
+
 class ModelReader
 {
 public:
     ModelReader();
     ~ModelReader();
 
-    bool readPCD(const std::string filename);
-    bool readPLY(const std::string filename);
+    bool importPCD(const std::string filename);
+    bool importPLY(const std::string filename);
     bool isFormatPCD(const std::string filename);
     bool isFormatPLY(const std::string filename);
     std::string getFileExtension(const std::string filename);
-    bool readModel(std::string path);
-
-    std::vector<glm::vec3> getPoints();
-    std::vector<glm::vec4> getColors();
-    std::vector<glm::vec3> getNormals();
+    bool importModel(std::string path);
 
 private:
-    std::vector<glm::vec3> _points;
-    std::vector<glm::vec4> _colors;
-    std::vector<glm::vec3> _normals;
-
     std::vector<std::string> split(const std::string input);
+
+    SceneObjects sceneObjects;
 };
 
 #endif // MODELREADER_H

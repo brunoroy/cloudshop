@@ -20,6 +20,8 @@ public:
     void initUserInterface();
 
 public slots:
+    void about();
+    void quit();
 
 private:
     std::shared_ptr<QMainWindow> _mainWindow;
