@@ -5,10 +5,12 @@
 #include <QFile>
 #include <QTextStream>
 
+#include "scenePlayer.h"
 #include "cloudTools.h"
 #include "modelReader.h"
 #include "shaderSources.h"
 #include "ui_mainWindow.h"
+#include "config.h"
 
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
@@ -30,12 +32,14 @@ public:
     void drawGeometry();
     bool isReady();
     void importGeometry(const std::string filename);
+    void initScenePlayer(const uint frameCount);
+    std::shared_ptr<ScenePlayer> getScenePlayer();
 
 public slots:
 
 protected:
     void init();
-    //void animate();
+    void animate();
     void draw();
     void keyPressEvent(QKeyEvent* event);
 
@@ -66,6 +70,7 @@ private:
 
     Ui_MainWindow *_userInterface;
     std::shared_ptr<Camera> _sceneCamera;
+    std::shared_ptr<ScenePlayer> _scenePlayer;
     std::shared_ptr<ModelReader> _modelReader;
     std::shared_ptr<CloudTools> _cloudTools;
 };

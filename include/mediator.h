@@ -37,6 +37,10 @@ public slots:
     //Help
     void about();
 
+    //Player
+    void changeCurrentFrame(const int currentFrame);
+    void doPlayPause();
+
 private:
     std::shared_ptr<QMainWindow> _mainWindow;
     std::shared_ptr<SceneViewer> _sceneViewer;
@@ -46,6 +50,7 @@ private:
     std::shared_ptr<CustomProgressBar> _progressBar;
 
     void toggleProgressBar(const int max = 100);
+    void toggleScenePlayer();
 };
 
 #endif // MEDIATOR_H

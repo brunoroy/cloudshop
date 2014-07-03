@@ -37,7 +37,6 @@ bool ModelReader::importPLY(const std::string filename)
     if (inputFile.is_open())
     {
         Object object;
-        //_points.clear();
         while (std::getline(inputFile, line))
         {
             if (line.compare(PLY_END_HEADER) == 0)
@@ -52,14 +51,10 @@ bool ModelReader::importPLY(const std::string filename)
                 glm::vec3 normal(0.0f, 0.0f, 0.0f);
                 glm::vec4 color(std::stof(values.at(3))/255.0f, std::stof(values.at(4))/255.0f, std::stof(values.at(5))/255.0f, 1.0f);
                 object.addVertex(Vertex(point, color, normal));
-                //std::clog << "vertex added." << std::endl;
-                //_points.push_back(point);
-                //_normals.push_back(normal);
             }
         }
         inputFile.close();
         _sceneObjects.addObject(object);
-        //std::clog << _sceneObjects.getSceneSize() << " objects imported to scene." << std::endl;
         return true;
     }
 

@@ -1,5 +1,4 @@
 #include "sceneViewer.h"
-#include "definitions.h"
 
 #include <QKeyEvent>
 #include <QFrame>
@@ -14,6 +13,7 @@ SceneViewer::SceneViewer(Ui_MainWindow *userInterface)
     _sceneCamera.reset(this->camera());
     _modelReader.reset(new ModelReader());
     _cloudTools.reset(new CloudTools());
+    _scenePlayer.reset(new ScenePlayer());
 }
 
 SceneViewer::~SceneViewer()
@@ -53,9 +53,21 @@ void SceneViewer::init()
     loadShaders();
 }
 
-/*void SceneViewer::animate()
+void SceneViewer::initScenePlayer(const uint frameCount)
 {
-}*/
+    _scenePlayer->setFrameCount(frameCount);
+}
+
+std::shared_ptr<ScenePlayer> SceneViewer::getScenePlayer()
+{
+    return _scenePlayer;
+}
+
+void SceneViewer::animate()
+{
+    if (_scenePlayer->isReady() && !_scenePlayer->isPaused())
+        _scenePlayer->getNextFrame();
+}
 
 void SceneViewer::loadShaders()
 {
@@ -151,10 +163,10 @@ void SceneViewer::drawGeometry()
     points.push_back(glm::vec3(min, 0.0f, max));
     colors.push_back(white);*/
 
-    for (uint i = 0; i < _modelReader->getSceneObjects().getSceneSize(); ++i)
-    {
-        //std::clog << "draw object " << (i+1) << "." << std::endl;
-        Object object = _modelReader->getObject(i);
+    /*for (uint i = 0; i < _modelReader->getSceneObjects().getSceneSize(); ++i)
+    {*/
+        //std::clog << "draw object " << _scenePlayer->getCurrentFrame() << "." << std::endl;
+        Object object = _modelReader->getObject(_scenePlayer->getCurrentFrame());
 
         glBindBuffer(GL_ARRAY_BUFFER, _vertexBuffer);
         glBufferData(GL_ARRAY_BUFFER, object.getVertexCount() * 3 * sizeof(GLfloat), &object.getPositions().at(0), GL_STREAM_DRAW);
@@ -192,33 +204,15 @@ void SceneViewer::drawGeometry()
 
         glBindBuffer(GL_ARRAY_BUFFER, 0);
         glUseProgram(0);
-    }
+    //}
 }
 
 void SceneViewer::draw()
 {
-    drawGeometry();
-    /*if (OPENGL_TEST)
-    {
-        if (_scenePlayer->isReady())
-            drawPlane();
-            //drawNoise();
-    }
-    else
-    {
-        if (_scenePlayer->isReady())
-        {
-            if (!_frames.at(_scenePlayer->getCurrentFrame()).selectedPoints.isEmpty())
-                updateTrackingMarkers();
+    _userInterface->eCurrentFrame->setText(QString::number(_scenePlayer->getCurrentFrame()+1));
 
-            if (_currentDisplayMode == MODE_POSITION)
-                drawPosition();
-            else if (_currentDisplayMode == MODE_REGRESSION)
-                drawRegressionOutput();
-            else if (_currentDisplayMode == MODE_ATTRIBUTE)
-                drawAttributes(_attributeList);
-        }
-    }*/
+    if (_scenePlayer->isReady())
+        drawGeometry();
 }
 
 void SceneViewer::centerCamera()
@@ -286,7 +280,7 @@ void SceneViewer::keyPressEvent(QKeyEvent* event)
         break;
         case Qt::Key_Space:
         {
-            /*if (_scenePlayer->isPaused())
+            if (_scenePlayer->isPaused())
             {
                 _scenePlayer->play();
                 _userInterface->bPlayPause->setIcon(QIcon(PATH_PAUSE_ICON));
@@ -295,7 +289,8 @@ void SceneViewer::keyPressEvent(QKeyEvent* event)
             {
                 _scenePlayer->pause();
                 _userInterface->bPlayPause->setIcon(QIcon(PATH_PLAY_ICON));
-            }*/
+                _userInterface->hsCurrentFrame->setValue(_scenePlayer->getCurrentFrame()-1);
+            }
         }
         break;
     }
@@ -303,7 +298,7 @@ void SceneViewer::keyPressEvent(QKeyEvent* event)
 
 bool SceneViewer::isReady()
 {
-    //return _scenePlayer->isReady();
+    return _scenePlayer->isReady();
 }
 
 void SceneViewer::importGeometry(const std::string filename)

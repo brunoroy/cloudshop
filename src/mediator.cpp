@@ -8,6 +8,7 @@ Mediator::Mediator()
     _userInterface.setupUi(_mainWindow.get());
 
     _sceneViewer.reset(new SceneViewer(&_userInterface));
+    _sceneViewer->stopAnimation();
 
     initViewer();
     initSignalSlot();
@@ -26,7 +27,7 @@ void Mediator::initViewer()
     _viewerLayout.reset(new QGridLayout());
     _viewerLayout->setMargin(0);
     _viewerLayout->addWidget(_sceneViewer.get());
-    _userInterface.widgetScenePlayer->setLayout(_viewerLayout.get());
+    _userInterface.widgetSceneViewer->setLayout(_viewerLayout.get());
 }
 
 void Mediator::initSignalSlot()
@@ -37,6 +38,10 @@ void Mediator::initSignalSlot()
 
     //Help
     connect(_userInterface.actionAbout, SIGNAL(triggered()), this, SLOT(about()));
+
+    //Player
+    connect(_userInterface.hsCurrentFrame, SIGNAL(valueChanged(int)), this, SLOT(changeCurrentFrame(int)));
+    connect(_userInterface.bPlayPause, SIGNAL(clicked()), this, SLOT(doPlayPause()));
 }
 
 void Mediator::initUserInterface()
@@ -45,6 +50,11 @@ void Mediator::initUserInterface()
     //_progressBar->setFormat(QString("%p%"));
     _userInterface.widgetProgressBar->layout()->addWidget(_progressBar.get());
     _userInterface.widgetProgressBar->hide();
+
+    _userInterface.hsCurrentFrame->setMinimum(1);
+    _userInterface.eCurrentFrame->setText(QString::number(_userInterface.hsCurrentFrame->minimum()));
+    _userInterface.bPlayPause->setIcon(QIcon(PATH_PLAY_ICON));
+    _userInterface.widgetScenePlayer->hide();
 }
 
 void Mediator::toggleProgressBar(const int max)
@@ -63,6 +73,40 @@ void Mediator::toggleProgressBar(const int max)
     }
 }
 
+void Mediator::toggleScenePlayer()
+{
+    int frameCount = _sceneViewer->getScenePlayer()->getFrameCount();
+    _userInterface.hsCurrentFrame->setMaximum(frameCount);
+    _userInterface.widgetScenePlayer->show();
+}
+
+void Mediator::changeCurrentFrame(const int currentFrame)
+{
+    if (_sceneViewer->getScenePlayer()->isPaused())
+    {
+        _sceneViewer->getScenePlayer()->setCurrentFrame(currentFrame-1);
+        _sceneViewer->update();
+    }
+
+    _userInterface.eCurrentFrame->setText(QString::number(currentFrame));
+}
+
+void Mediator::doPlayPause()
+{
+    if (_sceneViewer->getScenePlayer()->isPaused())
+    {
+        _sceneViewer->startAnimation();
+        _sceneViewer->getScenePlayer()->play();
+        _userInterface.bPlayPause->setIcon(QIcon(PATH_PAUSE_ICON));
+    }
+    else
+    {
+        _sceneViewer->stopAnimation();
+        _sceneViewer->getScenePlayer()->pause();
+        _userInterface.bPlayPause->setIcon(QIcon(PATH_PLAY_ICON));
+    }
+}
+
 void Mediator::importGeometry()
 {
     QString geometryFolder = QFileDialog::getExistingDirectory(_mainWindow.get(), "Browse geometry folder", "geo/");
@@ -74,6 +118,7 @@ void Mediator::importGeometry()
 
         if (!geometryFiles.isEmpty())
         {
+            _sceneViewer->initScenePlayer(geometryFiles.size());
             toggleProgressBar(geometryFiles.size());
             for (uint i = 0; i < geometryFiles.size(); ++i)
             {
@@ -85,6 +130,8 @@ void Mediator::importGeometry()
                 _progressBar->updateValue();
             }
             toggleProgressBar();
+            toggleScenePlayer();
+            _sceneViewer->startAnimation();
             QString message = QString("%1 files loaded.").arg(QString::number(geometryFiles.size()));
             _userInterface.statusBar->showMessage(message, 3000);
             //std::clog <<  << std::endl;
