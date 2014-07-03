@@ -9,9 +9,7 @@
 
 #include <glm/glm.hpp>
 
-#define PLY_END_HEADER "end_header"
-#define PCD_FILE_EXTENSION "PCD"
-#define PLY_FILE_EXTENSION "PLY"
+#include "config.h"
 
 struct Vertex
 {

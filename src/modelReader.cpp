@@ -29,6 +29,14 @@ bool ModelReader::importPCD(const std::string filename)
 
 bool ModelReader::importPLY(const std::string filename)
 {
+    bool hasPosition = false;
+    bool hasNormal = false;
+    bool hasColor = false;
+    uint positionComp[3];
+    uint colorComp[3];
+    uint normalComp[3];
+    uint compIndex = 0;
+
     bool isVertexProperties = false;
     std::string line;
     std::ifstream inputFile(filename);
@@ -44,17 +52,74 @@ bool ModelReader::importPLY(const std::string filename)
 
         while (std::getline(inputFile, line))
         {
-            if (line.compare(PLY_END_HEADER) == 0)
+            /*if (line.find(PLY_BEGIN_PROPERTY) != std::string::npos)
+            {
+                compIndex =
+            }*/
+            if (line.find(PLY_PROPERTY) != std::string::npos)
+            {
+                values = split(line);
+                if (values.at(2).compare("x") == 0)
+                    positionComp[0] = compIndex;
+                else if (values.at(2).compare("y") == 0)
+                    positionComp[1] = compIndex;
+                else if (values.at(2).compare("z") == 0)
+                {
+                    positionComp[2] = compIndex;
+                    hasPosition = true;
+                }
+
+                if (values.at(2).compare("red") == 0)
+                    colorComp[0] = compIndex;
+                else if (values.at(2).compare("green") == 0)
+                    colorComp[1] = compIndex;
+                else if (values.at(2).compare("blue") == 0)
+                {
+                    colorComp[2] = compIndex;
+                    hasColor = true;
+                }
+
+                if (values.at(2).compare("nx") == 0)
+                    normalComp[0] = compIndex;
+                if (values.at(2).compare("ny") == 0)
+                    normalComp[1] = compIndex;
+                else if (values.at(2).compare("nz") == 0)
+                {
+                    normalComp[2] = compIndex;
+                    hasNormal = true;
+                }
+
+                compIndex++;
+            }
+            else if (line.compare(PLY_END_HEADER) == 0)
             {
                 isVertexProperties = true;
             }
             else if (isVertexProperties)
             {
+                glm::vec3 point;
+                glm::vec4 color;
+                glm::vec3 normal;
+
                 values = split(line);
-                glm::vec3 point(std::stof(values.at(0)), std::stof(values.at(1)), std::stof(values.at(2)));
+
+                if (hasPosition)
+                    point = glm::vec3(std::stof(values.at(positionComp[0])), std::stof(values.at(positionComp[1])), std::stof(values.at(positionComp[2])));
+                else
+                    point = glm::vec3(0.0f, 0.0f, 0.0f);
+
                 //glm::vec3 normal(std::stof(values.at(4)), std::stof(values.at(5)), std::stof(values.at(6)));
-                glm::vec3 normal(0.0f, 0.0f, 0.0f);
-                glm::vec4 color(std::stof(values.at(3))/255.0f, std::stof(values.at(4))/255.0f, std::stof(values.at(5))/255.0f, 1.0f);
+                if (hasNormal)
+                    normal = glm::vec3(std::stof(values.at(normalComp[0])), std::stof(values.at(normalComp[1])), std::stof(values.at(normalComp[2])));
+                else
+                    normal = glm::vec3(0.0f, 0.0f, 0.0f);
+
+                if (hasColor)
+                    color = glm::vec4(std::stof(values.at(colorComp[0]))/255.0f, std::stof(values.at(colorComp[1]))/255.0f, std::stof(values.at(colorComp[2]))/255.0f, 1.0f);
+                else
+                    color = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
+
+
                 object.addVertex(Vertex(point, color, normal));
             }
         }
