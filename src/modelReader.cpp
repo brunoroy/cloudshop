@@ -48,8 +48,9 @@ bool ModelReader::importPLY(const std::string filename)
             {
                 values = split(line);
                 glm::vec3 point(std::stof(values.at(0)), std::stof(values.at(1)), std::stof(values.at(2)));
-                glm::vec3 normal(std::stof(values.at(4)), std::stof(values.at(5)), std::stof(values.at(6)));
-                glm::vec4 color(std::stof(values.at(7))/255.0f, std::stof(values.at(8))/255.0f, std::stof(values.at(9))/255.0f, 1.0f);
+                //glm::vec3 normal(std::stof(values.at(4)), std::stof(values.at(5)), std::stof(values.at(6)));
+                glm::vec3 normal(0.0f, 0.0f, 0.0f);
+                glm::vec4 color(std::stof(values.at(3))/255.0f, std::stof(values.at(4))/255.0f, std::stof(values.at(5))/255.0f, 1.0f);
                 object.addVertex(Vertex(point, color, normal));
                 //std::clog << "vertex added." << std::endl;
                 //_points.push_back(point);

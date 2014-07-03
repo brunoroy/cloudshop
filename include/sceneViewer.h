@@ -5,6 +5,7 @@
 #include <QFile>
 #include <QTextStream>
 
+#include "cloudTools.h"
 #include "modelReader.h"
 #include "shaderSources.h"
 #include "ui_mainWindow.h"
@@ -66,6 +67,7 @@ private:
     Ui_MainWindow *_userInterface;
     std::shared_ptr<Camera> _sceneCamera;
     std::shared_ptr<ModelReader> _modelReader;
+    std::shared_ptr<CloudTools> _cloudTools;
 };
 
 #endif // SCENEVIEWER_H
