@@ -36,7 +36,12 @@ bool ModelReader::importPLY(const std::string filename)
 
     if (inputFile.is_open())
     {
-        Object object;
+        int objectId = -1;
+        if (filename.find("cam") != std::string::npos)
+            objectId = std::stoi(filename.substr(filename.find("cam")+3, 1));
+
+        Object object(objectId);
+
         while (std::getline(inputFile, line))
         {
             if (line.compare(PLY_END_HEADER) == 0)

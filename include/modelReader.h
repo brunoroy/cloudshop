@@ -13,24 +13,6 @@
 #define PCD_FILE_EXTENSION "PCD"
 #define PLY_FILE_EXTENSION "PLY"
 
-/*class Vertex
-{
-public:
-    Vertex(){}
-    Vertex(glm::vec3 position, glm::vec4 color, glm::vec3 normal):
-        _position(position), _color(color), _normal(normal) {}
-    ~Vertex(){}
-
-    glm::vec3 getPosition() {return _position;}
-    glm::vec4 getColor() {return _color;}
-    glm::vec3 getNormal() {return _normal;}
-
-private:
-    glm::vec3 _position;
-    glm::vec4 _color;
-    glm::vec3 _normal;
-};*/
-
 struct Vertex
 {
     Vertex(glm::vec3 position, glm::vec4 color, glm::vec3 normal):
@@ -44,7 +26,13 @@ struct Vertex
 class Object
 {
 public:
-    Object(){}
+    Object(const int id = -1)
+    {
+        if (id == -1)
+            _id = std::rand();
+        else
+            _id = id;
+    }
     ~Object(){}
 
     Vertex getVertex(const uint index)
@@ -67,6 +55,8 @@ private:
     std::vector<glm::vec3> _positions;
     std::vector<glm::vec4> _colors;
     std::vector<glm::vec3> _normals;
+
+    uint _id;
 };
 
 class SceneObjects
