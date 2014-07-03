@@ -41,6 +41,26 @@ void Mediator::initSignalSlot()
 
 void Mediator::initUserInterface()
 {
+    _progressBar.reset(new CustomProgressBar());
+    //_progressBar->setFormat(QString("%p%"));
+    _userInterface.widgetProgressBar->layout()->addWidget(_progressBar.get());
+    _userInterface.widgetProgressBar->hide();
+}
+
+void Mediator::toggleProgressBar(const int max)
+{
+    if (_userInterface.widgetProgressBar->isHidden())
+    {
+        _userInterface.widgetProgressBar->show();
+        _progressBar->setValue(0);
+        _progressBar->setMaximum(max);
+    }
+    else
+    {
+        _userInterface.widgetProgressBar->hide();
+        _progressBar->setValue(0);
+        _progressBar->setMaximum(100);
+    }
 }
 
 void Mediator::importGeometry()
@@ -54,6 +74,7 @@ void Mediator::importGeometry()
 
         if (!geometryFiles.isEmpty())
         {
+            toggleProgressBar(geometryFiles.size());
             for (uint i = 0; i < geometryFiles.size(); ++i)
             {
                 std::string path(geometryFolder.toStdString());
@@ -61,7 +82,9 @@ void Mediator::importGeometry()
                 //std::clog << path << std::endl;
                 _sceneViewer->importGeometry(path);
                 _sceneViewer->update();
+                _progressBar->updateValue();
             }
+            toggleProgressBar();
             QString message = QString("%1 files loaded.").arg(QString::number(geometryFiles.size()));
             _userInterface.statusBar->showMessage(message, 3000);
             //std::clog <<  << std::endl;
