@@ -50,11 +50,12 @@ public:
     std::vector<glm::vec3> getNormals() {return _normals;}
     uint getId() {return _id;}
 
+    static bool compare(const Object& o1, const Object& o2) {return (o1._id < o2._id);}
+
 private:
     std::vector<glm::vec3> _positions;
     std::vector<glm::vec4> _colors;
     std::vector<glm::vec3> _normals;
-
     uint _id;
 };
 
@@ -67,26 +68,31 @@ public:
     void addObject(Object object)
     {
         _objects.push_back(object);
+        std::sort(_objects.begin(), _objects.end(), Object::compare);
 
-        uint lastId = _objects.at(_objects.size()-1).getId();
+        for (int i = 0; i < _objects.size(); ++i)
+            std::clog << "id[" << i << "]: " << _objects.at(i).getId() << std::endl;
+
+        /*uint lastId = _objects.at(_objects.size()-1).getId();
         std::clog << "lastId: " << lastId << std::endl;
         if (lastId > _idSize)
             _idSize = lastId;
         //_idSize = _objects.at(_objects.size()-1).getId() + 1;
-        std::clog << "idSize: " << _idSize << std::endl;
+        std::clog << "idSize: " << _idSize << std::endl;*/
     }
     Object getObject(const uint index, const uint id = 0)
     {
-        uint stride = ((_idSize+1) * id);
-        uint objectIndex = (_idSize * id) + id;
-        std::clog << "draw id " << objectIndex << std::endl;
-        std::clog << "stride: " << stride << std::endl;
-        return _objects.at(objectIndex);
+        //uint stride = ((_idSize+1) * id);
+        //uint objectIndex = (_idSize * id) + id;
+        //std::clog << "draw id " << objectIndex << std::endl;
+        //std::clog << "stride: " << stride << std::endl;
+        return _objects.at(index);
     }
     uint getSceneSize() {return _objects.size();}
     uint getIdSize() {return (_idSize+1);}
 
 private:
+
     std::vector<Object> _objects;
     uint _idSize;
 };
