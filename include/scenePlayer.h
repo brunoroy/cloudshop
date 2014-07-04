@@ -27,7 +27,7 @@ public:
     unsigned int getPreviousFrame();
     unsigned int getFirstFrame();
 
-    void setCurrentFrame(const unsigned int currentFrame);
+    void setCurrentFrame(const uint currentFrame);
 
 private:
     bool _isPaused;

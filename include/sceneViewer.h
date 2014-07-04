@@ -36,7 +36,23 @@ public:
     std::shared_ptr<ScenePlayer> getScenePlayer();
 
 public slots:
-    void setMatching(bool matching) {_matching = matching;}
+    void setMatching(bool matching)
+    {
+        _matching = matching;
+        if (_matching)
+        {
+            uint frameCount = _scenePlayer->getFrameCount()/3;
+            _userInterface->hsCurrentFrame->setMaximum(frameCount);
+            _scenePlayer->init(frameCount);
+        }
+        else
+        {
+            uint frameCount = _modelReader->getSceneObjects().getSceneSize();
+            _userInterface->hsCurrentFrame->setMaximum(frameCount);
+            _scenePlayer->init(frameCount);
+        }
+
+    }
 
 protected:
     void init();

@@ -70,26 +70,26 @@ public:
         _objects.push_back(object);
         std::sort(_objects.begin(), _objects.end(), Object::compare);
 
-        for (int i = 0; i < _objects.size(); ++i)
-            std::clog << "id[" << i << "]: " << _objects.at(i).getId() << std::endl;
-
-        /*uint lastId = _objects.at(_objects.size()-1).getId();
-        std::clog << "lastId: " << lastId << std::endl;
+        uint lastId = _objects.at(_objects.size()-1).getId();
         if (lastId > _idSize)
             _idSize = lastId;
-        //_idSize = _objects.at(_objects.size()-1).getId() + 1;
-        std::clog << "idSize: " << _idSize << std::endl;*/
     }
-    Object getObject(const uint index, const uint id = 0)
+    Object getObject(const uint frame, const uint id)
     {
-        //uint stride = ((_idSize+1) * id);
-        //uint objectIndex = (_idSize * id) + id;
-        //std::clog << "draw id " << objectIndex << std::endl;
+        uint stride = _objects.size()/getIdSize();
+        uint objectIndex = (stride * id) + frame;
+        //std::clog << "objectIndex: " << objectIndex << std::endl;
         //std::clog << "stride: " << stride << std::endl;
-        return _objects.at(index);
+        //std::clog << "idSize: " << _idSize << std::endl;
+        return _objects.at(objectIndex);
     }
     uint getSceneSize() {return _objects.size();}
     uint getIdSize() {return (_idSize+1);}
+    void reset()
+    {
+        _objects.clear();
+        _idSize = 0;
+    }
 
 private:
 
@@ -112,7 +112,8 @@ public:
 
     bool isSceneEmpty() {return (_sceneObjects.getSceneSize() == 0);}
     SceneObjects getSceneObjects() {return _sceneObjects;}
-    Object getObject(const uint index, const uint id = 0) {return _sceneObjects.getObject(index, id);}
+    Object getObject(const uint frame, const uint id = 0) {return _sceneObjects.getObject(frame, id);}
+    void resetScene() {_sceneObjects.reset();}
 
 private:
     std::vector<std::string> split(const std::string input);

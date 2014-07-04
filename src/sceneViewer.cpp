@@ -164,9 +164,10 @@ void SceneViewer::drawGeometry(const uint povSize)
     points.push_back(glm::vec3(min, 0.0f, max));
     colors.push_back(white);*/
 
+    //std::clog << "pov: " << povSize << std::endl;
+
     for (uint i = 0; i < povSize; ++i)
     {
-        //std::clog << "draw object " << _scenePlayer->getCurrentFrame() << "." << std::endl;
         Object object = _modelReader->getObject(_scenePlayer->getCurrentFrame(), i);
 
         glBindBuffer(GL_ARRAY_BUFFER, _vertexBuffer);
@@ -175,16 +176,11 @@ void SceneViewer::drawGeometry(const uint povSize)
         glBindBuffer(GL_ARRAY_BUFFER, _colorBuffer);
         glBufferData(GL_ARRAY_BUFFER, object.getVertexCount() * 4 * sizeof(GLfloat), &object.getColors().at(0), GL_STREAM_DRAW);
 
-        //glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-        //glPointSize(5.0f);
-
         glUseProgram(_programID);
 
         GLdouble matrix[16];
         _sceneCamera->getModelViewProjectionMatrix(matrix);
         _matrix = glm::make_mat4(matrix);
-
-        //printMat(_matrix);
 
         glUniformMatrix4fv(_matrixID, 1, GL_FALSE, &_matrix[0][0]);
 
@@ -196,8 +192,6 @@ void SceneViewer::drawGeometry(const uint povSize)
         glBindBuffer(GL_ARRAY_BUFFER, _colorBuffer);
         glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 0, (void*)0);
 
-        //glDrawArrays(GL_LINES, 0, 2);
-        //glDrawArrays(GL_TRIANGLES, 0, 3);
         glDrawArrays(GL_POINTS, 0, object.getVertexCount());
 
         glDisableVertexAttribArray(0);
@@ -221,19 +215,16 @@ void SceneViewer::draw()
 
 void SceneViewer::centerCamera()
 {
-    /*
-    q.w = cos(angle / 2)
+    /*q.w = cos(angle / 2)
     q.x = axis.x * sin( angle / 2)
     q.y = axis.y * sin( angle / 2)
-    q.z = axis.z * sin( angle / 2)
-    */
+    q.z = axis.z * sin( angle / 2)*/
 
     Quaternion q;
     q.setAxisAngle(Vec(1.0, 0.0, 0.0), -45.0 * (M_PI/180.0));
     _sceneCamera->setOrientation(q);
     _sceneCamera->setPosition(Vec(0.0, 5.0, 5.0));
     _userInterface->statusBar->showMessage("Center view", 3000);
-    update();
 }
 
 void SceneViewer::frontCameraView()
@@ -243,7 +234,6 @@ void SceneViewer::frontCameraView()
     _sceneCamera->setOrientation(q);
     _sceneCamera->setPosition(Vec(0.0, 1.5, 5.0));
     _userInterface->statusBar->showMessage("Front view", 3000);
-    update();
 }
 
 void SceneViewer::rightCameraView()
@@ -253,7 +243,6 @@ void SceneViewer::rightCameraView()
     _sceneCamera->setOrientation(q);
     _sceneCamera->setPosition(Vec(5.0, 1.5, 0.0));
     _userInterface->statusBar->showMessage("Right view", 3000);
-    update();
 }
 
 void SceneViewer::topCameraView()
@@ -263,13 +252,20 @@ void SceneViewer::topCameraView()
     _sceneCamera->setOrientation(q);
     _sceneCamera->setPosition(Vec(0.0, 5.0, 0.0));
     _userInterface->statusBar->showMessage("Top view", 3000);
-    update();
 }
 
 void SceneViewer::keyPressEvent(QKeyEvent* event)
 {
     switch (event->key())
     {
+        case Qt::Key_R:
+        {
+            _userInterface->widgetScenePlayer->hide();
+            _scenePlayer->init(0);
+            _modelReader->resetScene();
+            _userInterface->statusBar->showMessage(QString("Scene has been cleared."), 3000);
+        }
+        break;
         case Qt::Key_C:
             centerCamera();
         break;
@@ -298,6 +294,7 @@ void SceneViewer::keyPressEvent(QKeyEvent* event)
         }
         break;
     }
+    update();
 }
 
 bool SceneViewer::isReady()
