@@ -36,23 +36,8 @@ public:
     std::shared_ptr<ScenePlayer> getScenePlayer();
 
 public slots:
-    void setMatching(bool matching)
-    {
-        _matching = matching;
-        if (_matching)
-        {
-            uint frameCount = _scenePlayer->getFrameCount()/3;
-            _userInterface->hsCurrentFrame->setMaximum(frameCount);
-            _scenePlayer->init(frameCount);
-        }
-        else
-        {
-            uint frameCount = _modelReader->getSceneObjects().getSceneSize();
-            _userInterface->hsCurrentFrame->setMaximum(frameCount);
-            _scenePlayer->init(frameCount);
-        }
-
-    }
+    void setMatching(const bool matching);
+    void setShapeClipping(const bool clipping);
 
 protected:
     void init();
@@ -78,9 +63,7 @@ private:
     GLuint _shaderID[2];
     GLuint _programID;
     GLuint _matrixID;
-    GLuint _pickingColorID;
     glm::mat4 _matrix = glm::mat4(1.0f);
-    glm::vec4 _pickingColor = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
 
     qglviewer::Vec _cameraOrigin;
     qglviewer::Vec _cameraDirection;
@@ -92,6 +75,7 @@ private:
     std::shared_ptr<CloudTools> _cloudTools;
 
     bool _matching;
+    bool _shapeClipping;
 };
 
 #endif // SCENEVIEWER_H

@@ -126,7 +126,14 @@
     <property name="title">
      <string>Tools</string>
     </property>
-    <addaction name="actionMatching"/>
+    <widget class="QMenu" name="menuCloud">
+     <property name="title">
+      <string>Cloud</string>
+     </property>
+     <addaction name="actionMatch"/>
+     <addaction name="actionShapeClipping"/>
+    </widget>
+    <addaction name="menuCloud"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuTools"/>
@@ -243,7 +250,18 @@
     <string>Ctrl+I</string>
    </property>
   </action>
-  <action name="actionMatching">
+  <action name="actionShapeClipping">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Shape clipping</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+C</string>
+   </property>
+  </action>
+  <action name="actionMatch">
    <property name="checkable">
     <bool>true</bool>
    </property>

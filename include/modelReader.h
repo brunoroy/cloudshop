@@ -6,25 +6,43 @@
 #include <iostream>
 #include <fstream>
 #include <algorithm>
+#include <mutex>
 
 #include <glm/glm.hpp>
 
 #include "config.h"
 
+struct Shape
+{
+    Shape(std::string name, bool include, std::vector<float> params):
+        name(name), include(include), params(params) {}
+
+    std::string name;
+    bool include;
+    std::vector<float> params;
+};
+
+struct Calibration
+{
+    std::vector<Shape> shapes;
+};
+
 struct Vertex
 {
     Vertex(glm::vec3 position, glm::vec4 color, glm::vec3 normal):
-        position(position), color(color), normal(normal) {}
+        position(position), color(color), normal(normal), clipped(false) {}
 
     glm::vec3 position;
     glm::vec4 color;
     glm::vec3 normal;
+    bool clipped;
 };
 
 class Object
 {
 public:
-    Object(const int id = -1)
+    Object(const int id = -1):
+        _clipped(false)
     {
         if (id == -1)
             _id = std::rand();
@@ -50,13 +68,24 @@ public:
     std::vector<glm::vec3> getNormals() {return _normals;}
     uint getId() {return _id;}
 
-    static bool compare(const Object& o1, const Object& o2) {return (o1._id < o2._id);}
+    void setClipped(const bool clipped)
+    {
+        _clipped = clipped;
+        //if (_clipped)
+        //    std::sort(_)
+    }
+    bool isClipped() {return _clipped;}
+
+    static bool sortId(const Object& o1, const Object& o2) {return (o1._id < o2._id);}
+    static bool sortClipped(const Object& o1, const Object& o2) {return (o1._clipped == true);}
 
 private:
     std::vector<glm::vec3> _positions;
     std::vector<glm::vec4> _colors;
     std::vector<glm::vec3> _normals;
     uint _id;
+
+    bool _clipped;
 };
 
 class SceneObjects
@@ -68,7 +97,7 @@ public:
     void addObject(Object object)
     {
         _objects.push_back(object);
-        std::sort(_objects.begin(), _objects.end(), Object::compare);
+        std::sort(_objects.begin(), _objects.end(), Object::sortId);
 
         uint lastId = _objects.at(_objects.size()-1).getId();
         if (lastId > _idSize)

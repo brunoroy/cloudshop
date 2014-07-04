@@ -37,7 +37,7 @@ void Mediator::initSignalSlot()
     connect(_userInterface.actionQuit, SIGNAL(triggered()), this, SLOT(quit()));
 
     //Tools
-    connect(_userInterface.actionMatching, SIGNAL(triggered(bool)), this, SLOT(setMatching(bool)));
+    connect(_userInterface.actionMatch, SIGNAL(triggered(bool)), this, SLOT(setMatching(bool)));
 
     //Help
     connect(_userInterface.actionAbout, SIGNAL(triggered()), this, SLOT(about()));

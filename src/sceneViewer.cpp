@@ -8,7 +8,8 @@
 #include <limits>
 
 SceneViewer::SceneViewer(Ui_MainWindow *userInterface):
-    _matching(false)
+    _matching(false),
+    _shapeClipping(false)
 {
     _userInterface = userInterface;
     _sceneCamera.reset(this->camera());
@@ -145,6 +146,33 @@ void SceneViewer::loadShaders()
         printf("\n");
     }
 }*/
+
+void SceneViewer::setMatching(const bool matching)
+{
+    _matching = matching;
+    if (_matching)
+    {
+        uint frameCount = _scenePlayer->getFrameCount()/3;
+        _userInterface->hsCurrentFrame->setMaximum(frameCount);
+        _scenePlayer->init(frameCount);
+    }
+    else
+    {
+        uint frameCount = _modelReader->getSceneObjects().getSceneSize();
+        _userInterface->hsCurrentFrame->setMaximum(frameCount);
+        _scenePlayer->init(frameCount);
+    }
+
+}
+
+void SceneViewer::setShapeClipping(const bool clipping)
+{
+    _shapeClipping = clipping;
+
+    uint currentFrame = _scenePlayer->getCurrentFrame();
+    Object object = _modelReader->getObject(currentFrame);
+    _cloudTools->clip(object);
+}
 
 void SceneViewer::drawGeometry(const uint povSize)
 {

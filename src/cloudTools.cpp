@@ -2,6 +2,11 @@
 
 CloudTools::CloudTools()
 {
+    static const float sphere[] = {16,2,77,29};
+    _calibration.shapes.push_back(Shape("sphere", true, std::vector<float>(sphere, sphere + sizeof(sphere)/sizeof(sphere[0]))));
+    static const float cylinder[] = {16,2,77,29};
+    _calibration.shapes.push_back(Shape("cylinder", true, std::vector<float>(cylinder, cylinder + sizeof(cylinder)/sizeof(cylinder[0]))));
+
     initializeDistanceFunctions();
 }
 
@@ -37,4 +42,66 @@ void CloudTools::initializeDistanceFunctions()
         else
             return 0.f;
     };
+}
+
+void CloudTools::clip(Object& object)
+{
+    std::lock_guard<std::mutex> lock(_mutex);
+
+    //PointCloud<PointXYZRGBA>::Ptr clipped;
+    //clipped = boost::make_shared<PointCloud<PointXYZRGBA>>(*(cloud.get()));
+    //CalibrationParams calibration = _calibrationParams[0];
+
+    //PointCloud<PointXYZRGBA>::Ptr newCloud(new PointCloud<PointXYZRGBA>(_emptyCloud));
+    //pcl::PointXYZ p;
+    glm::vec3 p;
+    for (uint i = 0; i < object.getVertexCount(); ++i)
+    {
+        Vertex v = object.getVertex(i);
+
+        bool keep = false;
+        p.x = v.position.x;
+        p.y = v.position.y;
+        p.z = v.position.z;
+
+        std::for_each(_calibration.shapes.begin(), _calibration.shapes.end(), [&] (Shape shape)
+        {
+            if (!shape.include || keep == true)
+                return;
+
+            if (_distanceFunctions.find(shape.name) == _distanceFunctions.end())
+                return;
+
+            if (_distanceFunctions[shape.name](p, shape.params) < 0.f)
+                keep = true;
+        });
+
+        if (keep == false)
+            continue;
+
+        std::for_each (_calibration.shapes.begin(), _calibration.shapes.end(), [&] (Shape shape)
+        {
+            if (shape.include)
+                return;
+
+            if (_distanceFunctions.find(shape.name) == _distanceFunctions.end())
+                return;
+
+            if (_distanceFunctions[shape.name](p, shape.params) < 0.f)
+                keep = false;
+        });
+
+        v.clipped = !keep;
+        //if (keep)
+            //v.clipped =
+            //std::clog << "test." << std::endl;
+            //newCloud->push_back(clipped->points[i]);
+    }
+
+    if (_calibration.shapes.size() > 0)
+        object.setClipped(true);
+        //std::clog << "test." << std::endl;
+        //clipped = newCloud;
+
+    //return clipped;
 }
