@@ -52,10 +52,6 @@ bool ModelReader::importPLY(const std::string filename)
 
         while (std::getline(inputFile, line))
         {
-            /*if (line.find(PLY_BEGIN_PROPERTY) != std::string::npos)
-            {
-                compIndex =
-            }*/
             if (line.find(PLY_PROPERTY) != std::string::npos)
             {
                 values = split(line);
@@ -108,7 +104,6 @@ bool ModelReader::importPLY(const std::string filename)
                 else
                     point = glm::vec3(0.0f, 0.0f, 0.0f);
 
-                //glm::vec3 normal(std::stof(values.at(4)), std::stof(values.at(5)), std::stof(values.at(6)));
                 if (hasNormal)
                     normal = glm::vec3(std::stof(values.at(normalComp[0])), std::stof(values.at(normalComp[1])), std::stof(values.at(normalComp[2])));
                 else

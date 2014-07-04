@@ -36,6 +36,9 @@ void Mediator::initSignalSlot()
     connect(_userInterface.actionImportGeometry, SIGNAL(triggered()), this, SLOT(importGeometry()));
     connect(_userInterface.actionQuit, SIGNAL(triggered()), this, SLOT(quit()));
 
+    //Tools
+    connect(_userInterface.actionMatching, SIGNAL(triggered(bool)), this, SLOT(setMatching(bool)));
+
     //Help
     connect(_userInterface.actionAbout, SIGNAL(triggered()), this, SLOT(about()));
 
@@ -105,6 +108,11 @@ void Mediator::doPlayPause()
         _sceneViewer->getScenePlayer()->pause();
         _userInterface.bPlayPause->setIcon(QIcon(PATH_PLAY_ICON));
     }
+}
+
+void Mediator::setMatching(bool value)
+{
+    _sceneViewer->setMatching(value);
 }
 
 void Mediator::importGeometry()

@@ -7,7 +7,8 @@
 
 #include <limits>
 
-SceneViewer::SceneViewer(Ui_MainWindow *userInterface)
+SceneViewer::SceneViewer(Ui_MainWindow *userInterface):
+    _matching(false)
 {
     _userInterface = userInterface;
     _sceneCamera.reset(this->camera());
@@ -145,7 +146,7 @@ void SceneViewer::loadShaders()
     }
 }*/
 
-void SceneViewer::drawGeometry()
+void SceneViewer::drawGeometry(const uint povSize)
 {
     /*float min = -0.5f;
     float max = 0.5f;
@@ -163,10 +164,10 @@ void SceneViewer::drawGeometry()
     points.push_back(glm::vec3(min, 0.0f, max));
     colors.push_back(white);*/
 
-    /*for (uint i = 0; i < _modelReader->getSceneObjects().getSceneSize(); ++i)
-    {*/
+    for (uint i = 0; i < povSize; ++i)
+    {
         //std::clog << "draw object " << _scenePlayer->getCurrentFrame() << "." << std::endl;
-        Object object = _modelReader->getObject(_scenePlayer->getCurrentFrame());
+        Object object = _modelReader->getObject(_scenePlayer->getCurrentFrame(), i);
 
         glBindBuffer(GL_ARRAY_BUFFER, _vertexBuffer);
         glBufferData(GL_ARRAY_BUFFER, object.getVertexCount() * 3 * sizeof(GLfloat), &object.getPositions().at(0), GL_STREAM_DRAW);
@@ -204,7 +205,7 @@ void SceneViewer::drawGeometry()
 
         glBindBuffer(GL_ARRAY_BUFFER, 0);
         glUseProgram(0);
-    //}
+    }
 }
 
 void SceneViewer::draw()
@@ -212,7 +213,10 @@ void SceneViewer::draw()
     _userInterface->eCurrentFrame->setText(QString::number(_scenePlayer->getCurrentFrame()+1));
 
     if (_scenePlayer->isReady())
-        drawGeometry();
+        if (_matching)
+            drawGeometry(_modelReader->getSceneObjects().getIdSize());
+        else
+            drawGeometry();
 }
 
 void SceneViewer::centerCamera()

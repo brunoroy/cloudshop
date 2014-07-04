@@ -34,6 +34,9 @@ public slots:
     void importGeometry();
     void quit();
 
+    //Tools
+    void setMatching(bool value);
+
     //Help
     void about();
 

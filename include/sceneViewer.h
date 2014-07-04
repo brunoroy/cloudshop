@@ -29,19 +29,20 @@ public:
     SceneViewer(Ui_MainWindow *userInterface);
     ~SceneViewer();
 
-    void drawGeometry();
+    void drawGeometry(const uint povSize = 1);
     bool isReady();
     void importGeometry(const std::string filename);
     void initScenePlayer(const uint frameCount);
     std::shared_ptr<ScenePlayer> getScenePlayer();
 
 public slots:
+    void setMatching(bool matching) {_matching = matching;}
 
 protected:
     void init();
     void animate();
     void draw();
-    void keyPressEvent(QKeyEvent* event);
+    void keyPressEvent(QKeyEvent* event);    
 
 private:
     //Camera
@@ -73,6 +74,8 @@ private:
     std::shared_ptr<ScenePlayer> _scenePlayer;
     std::shared_ptr<ModelReader> _modelReader;
     std::shared_ptr<CloudTools> _cloudTools;
+
+    bool _matching;
 };
 
 #endif // SCENEVIEWER_H
