@@ -41,13 +41,14 @@ struct Vertex
 class Object
 {
 public:
-    Object(const int id = -1):
+    Object(const int id = -1, const ull ts = 0):
         _clipped(false)
     {
         if (id == -1)
             _id = std::rand();
         else
             _id = id;
+        _ts = ts;
     }
     ~Object(){}
 
@@ -78,12 +79,26 @@ public:
 
     static bool sortId(const Object& o1, const Object& o2) {return (o1._id < o2._id);}
     static bool sortClipped(const Object& o1, const Object& o2) {return (o1._clipped == true);}
+    static bool sortIdTimestamp(const Object& o1, const Object& o2)
+    {
+        if (o1._id < o2._id)
+            return true;
+        if (o1._id > o2._id)
+            return false;
+
+        if (o1._ts < o2._ts)
+            return true;
+
+        return false;
+        //return (o1._ts < o2._ts);
+    }
 
 private:
     std::vector<glm::vec3> _positions;
     std::vector<glm::vec4> _colors;
     std::vector<glm::vec3> _normals;
     uint _id;
+    ull _ts;
 
     bool _clipped;
 };
@@ -97,7 +112,7 @@ public:
     void addObject(Object object)
     {
         _objects.push_back(object);
-        std::sort(_objects.begin(), _objects.end(), Object::sortId);
+        std::sort(_objects.begin(), _objects.end(), Object::sortIdTimestamp);
 
         uint lastId = _objects.at(_objects.size()-1).getId();
         if (lastId > _idSize)

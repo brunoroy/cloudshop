@@ -10,4 +10,7 @@
 #define PATH_PLAY_ICON "ico/play.ico"
 #define PATH_PAUSE_ICON "ico/pause.ico"
 
+typedef unsigned int uint;
+typedef unsigned long long ull;
+
 #endif // CONFIG_H

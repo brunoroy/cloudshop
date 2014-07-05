@@ -1,7 +1,7 @@
 #ifndef SCENEPLAYER_H
 #define SCENEPLAYER_H
 
-typedef unsigned int uint;
+#include "config.h"
 
 class ScenePlayer
 {

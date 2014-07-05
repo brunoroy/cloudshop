@@ -45,10 +45,13 @@ bool ModelReader::importPLY(const std::string filename)
     if (inputFile.is_open())
     {
         int objectId = -1;
+        ull timestamp;
         if (filename.find("cam") != std::string::npos)
             objectId = std::stoi(filename.substr(filename.find("cam")+3, 1));
+        if (filename.find("_") != std::string::npos)
+            timestamp = std::stoull(filename.substr(filename.find("_")+1, filename.length()-5));
 
-        Object object(objectId);
+        Object object(objectId, timestamp);
 
         while (std::getline(inputFile, line))
         {
