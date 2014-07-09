@@ -7,7 +7,7 @@ Mediator::Mediator()
     _mainWindow.reset(new QMainWindow());
     _userInterface.setupUi(_mainWindow.get());
 
-    _sceneViewer.reset(new SceneViewer(&_userInterface));
+    _sceneViewer.reset(new SceneViewer(&_userInterface, &_transformsDialog));
     _sceneViewer->stopAnimation();
 
     initViewer();

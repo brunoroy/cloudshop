@@ -9,17 +9,21 @@
 
 #include "timer.h"
 
-SceneViewer::SceneViewer(Ui_MainWindow *userInterface):
+SceneViewer::SceneViewer(Ui_MainWindow *userInterface, Ui_TransformsDialog *transformsDialog):
     _matching(false),
     _shapeClipping(false),
     _merge(false),
     _objectSelected(-1)
 {
     _userInterface = userInterface;
+    _transformsDialog = transformsDialog;
     _sceneCamera.reset(this->camera());
     _modelReader.reset(new ModelReader());
     _cloudTools.reset(new CloudTools());
     _scenePlayer.reset(new ScenePlayer());
+
+    _dialog.reset(new QDialog());
+    _transformsDialog->setupUi(_dialog.get());
 }
 
 SceneViewer::~SceneViewer()
@@ -325,6 +329,16 @@ void SceneViewer::keyPressEvent(QKeyEvent* event)
                 {
                     _objectSelected = -1;
                     _userInterface->statusBar->showMessage(QString("No object selected."), 3000);
+                }
+                else if (event->key() == Qt::Key_R && _objectSelected != -1)
+                {
+                    _dialog->setWindowTitle(QString("Rotation"));
+                    _dialog->show();
+                }
+                else if (event->key() == Qt::Key_T && _objectSelected != -1)
+                {
+                    _dialog->setWindowTitle(QString("Translation"));
+                    _dialog->show();
                 }
             }
         }

@@ -50,6 +50,7 @@ private:
     std::shared_ptr<SceneViewer> _sceneViewer;
     std::shared_ptr<QGridLayout> _viewerLayout;
     Ui_MainWindow _userInterface;
+    Ui_TransformsDialog _transformsDialog;
 
     std::shared_ptr<CustomProgressBar> _progressBar;
 

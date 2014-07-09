@@ -10,6 +10,7 @@
 #include "modelReader.h"
 #include "shaderSources.h"
 #include "ui_mainWindow.h"
+#include "ui_dialogTransforms.h"
 #include "config.h"
 
 #include <glm/glm.hpp>
@@ -26,7 +27,7 @@ using namespace qglviewer;
 class SceneViewer : public QGLViewer
 {
 public:
-    SceneViewer(Ui_MainWindow *userInterface);
+    SceneViewer(Ui_MainWindow *userInterface, Ui_TransformsDialog *transformsDialog);
     ~SceneViewer();
 
     void drawGeometry(const uint povSize = 1);
@@ -71,6 +72,8 @@ private:
     qglviewer::Vec _cameraDirection;
 
     Ui_MainWindow *_userInterface;
+    Ui_TransformsDialog *_transformsDialog;
+    std::shared_ptr<QDialog> _dialog;
     std::shared_ptr<Camera> _sceneCamera;
     std::shared_ptr<ScenePlayer> _scenePlayer;
     std::shared_ptr<ModelReader> _modelReader;

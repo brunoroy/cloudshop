@@ -10,7 +10,8 @@ SOURCES += \
     src/*.cpp
 
 FORMS += \
-    gui/mainWindow.ui
+    gui/mainWindow.ui \
+    gui/dialogTransforms.ui
 
 INCLUDEPATH += include
 
