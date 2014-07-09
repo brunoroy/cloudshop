@@ -317,9 +317,15 @@ void SceneViewer::keyPressEvent(QKeyEvent* event)
             if (_matching)
             {
                 if (event->key() == Qt::Key_1 || event->key() == Qt::Key_2 || event->key() == Qt::Key_3)
+                {
                     _objectSelected = event->key()-49;
+                    _userInterface->statusBar->showMessage(QString("Object %1 selected.").arg(QString::number(_objectSelected)), 3000);
+                }
                 else if (event->key() == Qt::Key_D)
+                {
                     _objectSelected = -1;
+                    _userInterface->statusBar->showMessage(QString("No object selected."), 3000);
+                }
             }
         }
         break;
