@@ -166,6 +166,7 @@ void SceneViewer::setMatching(const bool matching)
         uint frameCount = _modelReader->getSceneObjects().getSceneSize();
         _userInterface->hsCurrentFrame->setMaximum(frameCount);
         _scenePlayer->init(frameCount);
+        _objectSelected = -1;
     }
 }
 
@@ -313,11 +314,13 @@ void SceneViewer::keyPressEvent(QKeyEvent* event)
     {
         case Qt::AltModifier:
         {
-            if (event->key() == Qt::Key_1 || event->key() == Qt::Key_2 || event->key() == Qt::Key_3)
-                _objectSelected = event->key()-49;
-            else if (event->key() == Qt::Key_D)
-                _objectSelected = -1;
-            //std::clog << "object: " << _objectSelected << std::endl;
+            if (_matching)
+            {
+                if (event->key() == Qt::Key_1 || event->key() == Qt::Key_2 || event->key() == Qt::Key_3)
+                    _objectSelected = event->key()-49;
+                else if (event->key() == Qt::Key_D)
+                    _objectSelected = -1;
+            }
         }
         break;
         case Qt::NoModifier:
