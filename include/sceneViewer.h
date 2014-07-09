@@ -34,6 +34,7 @@ public:
     void importGeometry(const std::string filename);
     void initScenePlayer(const uint frameCount);
     std::shared_ptr<ScenePlayer> getScenePlayer();
+    void mergeObjects();
 
 public slots:
     void setMatching(const bool matching);
@@ -43,7 +44,7 @@ protected:
     void init();
     void animate();
     void draw();
-    void keyPressEvent(QKeyEvent* event);    
+    void keyPressEvent(QKeyEvent* event);
 
 private:
     //Camera
@@ -63,6 +64,7 @@ private:
     GLuint _shaderID[2];
     GLuint _programID;
     GLuint _matrixID;
+    GLuint _alphaID;
     glm::mat4 _matrix = glm::mat4(1.0f);
 
     qglviewer::Vec _cameraOrigin;
@@ -76,6 +78,8 @@ private:
 
     bool _matching;
     bool _shapeClipping;
+    bool _merge;
+    int _objectSelected;
 };
 
 #endif // SCENEVIEWER_H

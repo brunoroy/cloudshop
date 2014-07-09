@@ -43,7 +43,7 @@ bool ModelReader::importPLY(const std::string filename)
     std::vector<std::string> values;
 
     if (inputFile.is_open())
-    {
+    {        
         int objectId = -1;
         ull timestamp;
         if (filename.find("cam") != std::string::npos)
@@ -106,7 +106,7 @@ bool ModelReader::importPLY(const std::string filename)
             else if (isVertexProperties)
             {
                 glm::vec3 point;
-                glm::vec4 color;
+                glm::vec3 color;
                 glm::vec3 normal;
 
                 values = split(line);
@@ -122,9 +122,9 @@ bool ModelReader::importPLY(const std::string filename)
                     normal = glm::vec3(0.0f, 0.0f, 0.0f);
 
                 if (hasColor)
-                    color = glm::vec4(std::stof(values.at(colorComp[0]))/255.0f, std::stof(values.at(colorComp[1]))/255.0f, std::stof(values.at(colorComp[2]))/255.0f, 1.0f);
+                    color = glm::vec3(std::stof(values.at(colorComp[0]))/255.0f, std::stof(values.at(colorComp[1]))/255.0f, std::stof(values.at(colorComp[2]))/255.0f);
                 else
-                    color = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
+                    color = glm::vec3(1.0f, 1.0f, 1.0f);
 
 
                 object.addVertex(Vertex(point, color, normal));

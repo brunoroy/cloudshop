@@ -12,13 +12,14 @@ struct ShaderSources
         #version 330 core
 
         layout(location = 0) in vec3 position;
-        layout(location = 1) in vec4 color;
+        layout(location = 1) in vec3 color;
+        uniform float alpha;
         uniform mat4 matrix;
         out vec4 vertexColor;
 
         void main()
         {
-            vertexColor = color;
+            vertexColor = vec4(color, alpha);
             gl_Position =  matrix * vec4(position, 1.0);
         }
     )"};

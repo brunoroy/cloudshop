@@ -38,6 +38,7 @@ void Mediator::initSignalSlot()
 
     //Tools
     connect(_userInterface.actionMatch, SIGNAL(triggered(bool)), this, SLOT(setMatching(bool)));
+    connect(_userInterface.actionMerge, SIGNAL(triggered()), this, SLOT(merge()));
 
     //Help
     connect(_userInterface.actionAbout, SIGNAL(triggered()), this, SLOT(about()));
@@ -147,6 +148,13 @@ void Mediator::importGeometry()
         else
             std::clog << geometryFolder.toStdString() << " is empty." << std::endl;
     }
+}
+
+void Mediator::merge()
+{
+    setMatching(false);
+    _userInterface.actionMatch->setEnabled(false);
+    _sceneViewer->mergeObjects();
 }
 
 void Mediator::about()

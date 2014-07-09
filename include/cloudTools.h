@@ -16,6 +16,7 @@ public:
     ~CloudTools();
 
     void clip(Object& object);
+    Object merge(std::initializer_list<Object>);
 
 private:
     void initializeDistanceFunctions();

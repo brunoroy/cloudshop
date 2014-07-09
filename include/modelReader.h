@@ -29,11 +29,12 @@ struct Calibration
 
 struct Vertex
 {
-    Vertex(glm::vec3 position, glm::vec4 color, glm::vec3 normal):
+    Vertex() {}
+    Vertex(glm::vec3 position, glm::vec3 color, glm::vec3 normal):
         position(position), color(color), normal(normal), clipped(false) {}
 
     glm::vec3 position;
-    glm::vec4 color;
+    glm::vec3 color;
     glm::vec3 normal;
     bool clipped;
 };
@@ -65,9 +66,11 @@ public:
     uint getVertexCount() {return _positions.size();}
 
     std::vector<glm::vec3> getPositions() {return _positions;}
-    std::vector<glm::vec4> getColors() {return _colors;}
+    std::vector<glm::vec3> getColors() {return _colors;}
     std::vector<glm::vec3> getNormals() {return _normals;}
     uint getId() {return _id;}
+    ull getTimestamp() {return _ts;}
+    glm::mat4 getTransforms() {return _transforms;}
 
     void setClipped(const bool clipped)
     {
@@ -93,13 +96,28 @@ public:
         //return (o1._ts < o2._ts);
     }
 
+    void merge(Object object)
+    {
+        Vertex vertex;
+        for (uint i = 0; i < object.getVertexCount(); ++i)
+        {
+            vertex = object.getVertex(i);
+            _positions.push_back(vertex.position);
+            _colors.push_back(vertex.color);
+            _normals.push_back(vertex.normal);
+        }
+        _id = object.getId();
+        _ts = object.getTimestamp();
+    }
+
 private:
     std::vector<glm::vec3> _positions;
-    std::vector<glm::vec4> _colors;
+    std::vector<glm::vec3> _colors;
     std::vector<glm::vec3> _normals;
     uint _id;
     ull _ts;
 
+    glm::mat4 _transforms = glm::mat4(1.0f);
     bool _clipped;
 };
 
@@ -126,6 +144,7 @@ public:
         //std::clog << "stride: " << stride << std::endl;
         //std::clog << "idSize: " << _idSize << std::endl;
         return _objects.at(objectIndex);
+        //return _objects.at(id);
     }
     uint getSceneSize() {return _objects.size();}
     uint getIdSize() {return (_idSize+1);}
@@ -158,6 +177,12 @@ public:
     SceneObjects getSceneObjects() {return _sceneObjects;}
     Object getObject(const uint frame, const uint id = 0) {return _sceneObjects.getObject(frame, id);}
     void resetScene() {_sceneObjects.reset();}
+    void addObject(Object object) {_sceneObjects.addObject(object);}
+    void setSceneObjects(SceneObjects sceneObjects)
+    {
+        _sceneObjects = sceneObjects;
+        //for (uint i = 0; i < sceneObjects.getIdSize(); ++i)
+    }
 
 private:
     std::vector<std::string> split(const std::string input);

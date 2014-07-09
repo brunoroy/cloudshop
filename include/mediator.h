@@ -36,6 +36,7 @@ public slots:
 
     //Tools
     void setMatching(bool value);
+    void merge();
 
     //Help
     void about();

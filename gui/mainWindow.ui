@@ -132,6 +132,7 @@
      </property>
      <addaction name="actionMatch"/>
      <addaction name="actionShapeClipping"/>
+     <addaction name="actionMerge"/>
     </widget>
     <addaction name="menuCloud"/>
    </widget>
@@ -270,6 +271,14 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+M</string>
+   </property>
+  </action>
+  <action name="actionMerge">
+   <property name="text">
+    <string>Merge</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+A</string>
    </property>
   </action>
  </widget>
