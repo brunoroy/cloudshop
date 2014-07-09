@@ -7,9 +7,13 @@
 
 #include <limits>
 
+#include "timer.h"
+
 SceneViewer::SceneViewer(Ui_MainWindow *userInterface):
     _matching(false),
-    _shapeClipping(false)
+    _shapeClipping(false),
+    _merge(false),
+    _objectSelected(-1)
 {
     _userInterface = userInterface;
     _sceneCamera.reset(this->camera());
@@ -131,6 +135,7 @@ void SceneViewer::loadShaders()
     }
 
     _matrixID = glGetUniformLocation(_programID, "matrix");
+    _alphaID = glGetUniformLocation(_programID, "alpha");
 
     glDeleteShader(_shaderID[0]);
     glDeleteShader(_shaderID[1]);
@@ -162,7 +167,6 @@ void SceneViewer::setMatching(const bool matching)
         _userInterface->hsCurrentFrame->setMaximum(frameCount);
         _scenePlayer->init(frameCount);
     }
-
 }
 
 void SceneViewer::setShapeClipping(const bool clipping)
@@ -176,34 +180,15 @@ void SceneViewer::setShapeClipping(const bool clipping)
 
 void SceneViewer::drawGeometry(const uint povSize)
 {
-    /*float min = -0.5f;
-    float max = 0.5f;
-
-    std::vector<glm::vec3> points;
-    std::vector<glm::vec4> colors;
-    glm::vec4 white(1.0f, 1.0f, 1.0f, 1.0f);
-
-    points.push_back(glm::vec3(min, 0.0f, min));
-    colors.push_back(white);
-    points.push_back(glm::vec3(max, 0.0f, min));
-    colors.push_back(white);
-    points.push_back(glm::vec3(max, 0.0f, max));
-    colors.push_back(white);
-    points.push_back(glm::vec3(min, 0.0f, max));
-    colors.push_back(white);*/
-
-    //std::clog << "pov: " << povSize << std::endl;
-
     for (uint i = 0; i < povSize; ++i)
     {
-        //std::clog << "draw frame: " << _scenePlayer->getCurrentFrame() << "; pov: " << i << std::endl;
         Object object = _modelReader->getObject(_scenePlayer->getCurrentFrame(), i);
 
         glBindBuffer(GL_ARRAY_BUFFER, _vertexBuffer);
         glBufferData(GL_ARRAY_BUFFER, object.getVertexCount() * 3 * sizeof(GLfloat), &object.getPositions().at(0), GL_STREAM_DRAW);
 
         glBindBuffer(GL_ARRAY_BUFFER, _colorBuffer);
-        glBufferData(GL_ARRAY_BUFFER, object.getVertexCount() * 4 * sizeof(GLfloat), &object.getColors().at(0), GL_STREAM_DRAW);
+        glBufferData(GL_ARRAY_BUFFER, object.getVertexCount() * 3 * sizeof(GLfloat), &object.getColors().at(0), GL_STREAM_DRAW);
 
         glUseProgram(_programID);
 
@@ -213,13 +198,23 @@ void SceneViewer::drawGeometry(const uint povSize)
 
         glUniformMatrix4fv(_matrixID, 1, GL_FALSE, &_matrix[0][0]);
 
+        if (_objectSelected == -1)
+            glUniform1f(_alphaID, 1.0f);
+        else
+        {
+            if (i == _objectSelected)
+                glUniform1f(_alphaID, 1.0f);
+            else
+                glUniform1f(_alphaID, 0.25f);
+        }
+
         glEnableVertexAttribArray(0);
         glBindBuffer(GL_ARRAY_BUFFER, _vertexBuffer);
         glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
 
         glEnableVertexAttribArray(1);
         glBindBuffer(GL_ARRAY_BUFFER, _colorBuffer);
-        glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 0, (void*)0);
+        glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
 
         glDrawArrays(GL_POINTS, 0, object.getVertexCount());
     }
@@ -231,11 +226,40 @@ void SceneViewer::drawGeometry(const uint povSize)
     glUseProgram(0);
 }
 
+void SceneViewer::mergeObjects()
+{
+    _userInterface->statusBar->showMessage("Merging matching clouds...");
+    uint povSize = _modelReader->getSceneObjects().getIdSize();
+
+    uint frameCount = _scenePlayer->getFrameCount() / povSize;
+    SceneObjects sceneObjects;
+    for (uint f = 0; f < frameCount; ++f)
+    {
+        std::vector<Object> objects;
+        for (uint i = 0; i < povSize; ++i)
+            objects.push_back(_modelReader->getObject(f, i));
+
+        Object object;
+        if (povSize == 3)
+            object = _cloudTools->merge({objects.at(0), objects.at(1), objects.at(2)});
+        else
+            object = _cloudTools->merge({objects.at(0)});
+
+        sceneObjects.addObject(object);
+    }
+
+    _modelReader->setSceneObjects(sceneObjects);
+    frameCount = _modelReader->getSceneObjects().getSceneSize();
+    _scenePlayer->init(frameCount);
+    _userInterface->hsCurrentFrame->setMaximum(frameCount);
+    _userInterface->statusBar->showMessage("Merging done.", 3000);
+}
+
 void SceneViewer::draw()
 {
     _userInterface->eCurrentFrame->setText(QString::number(_scenePlayer->getCurrentFrame()+1));
 
-    if (_scenePlayer->isReady())
+    if (isReady())
         if (_matching)
             drawGeometry(_modelReader->getSceneObjects().getIdSize());
         else
@@ -285,40 +309,47 @@ void SceneViewer::topCameraView()
 
 void SceneViewer::keyPressEvent(QKeyEvent* event)
 {
-    switch (event->key())
+    switch (event->modifiers())
     {
-        case Qt::Key_R:
+        case Qt::AltModifier:
         {
-            _userInterface->widgetScenePlayer->hide();
-            _scenePlayer->init(0);
-            _modelReader->resetScene();
-            _userInterface->statusBar->showMessage(QString("Scene has been cleared."), 3000);
+            if (event->key() == Qt::Key_1 || event->key() == Qt::Key_2 || event->key() == Qt::Key_3)
+                _objectSelected = event->key()-49;
+            else if (event->key() == Qt::Key_D)
+                _objectSelected = -1;
+            //std::clog << "object: " << _objectSelected << std::endl;
         }
         break;
-        case Qt::Key_C:
-            centerCamera();
-        break;
-        case Qt::Key_1:
-            frontCameraView();
-        break;
-        case Qt::Key_3:
-            rightCameraView();
-        break;
-        case Qt::Key_7:
-            topCameraView();
-        break;
-        case Qt::Key_Space:
+        case Qt::NoModifier:
         {
-            if (_scenePlayer->isPaused())
+            if (event->key() == Qt::Key_R)
             {
-                _scenePlayer->play();
-                _userInterface->bPlayPause->setIcon(QIcon(PATH_PAUSE_ICON));
+                _userInterface->widgetScenePlayer->hide();
+                _scenePlayer->init(0);
+                _modelReader->resetScene();
+                _userInterface->statusBar->showMessage(QString("Scene has been cleared."), 3000);
             }
-            else
+            else if (event->key() == Qt::Key_C)
+                centerCamera();
+            else if (event->key() == Qt::Key_1)
+                frontCameraView();
+            else if (event->key() == Qt::Key_3)
+                rightCameraView();
+            else if (event->key() == Qt::Key_7)
+                topCameraView();
+            else if (event->key() == Qt::Key_Space)
             {
-                _scenePlayer->pause();
-                _userInterface->bPlayPause->setIcon(QIcon(PATH_PLAY_ICON));
-                _userInterface->hsCurrentFrame->setValue(_scenePlayer->getCurrentFrame()-1);
+                if (_scenePlayer->isPaused())
+                {
+                    _scenePlayer->play();
+                    _userInterface->bPlayPause->setIcon(QIcon(PATH_PAUSE_ICON));
+                }
+                else
+                {
+                    _scenePlayer->pause();
+                    _userInterface->bPlayPause->setIcon(QIcon(PATH_PLAY_ICON));
+                    _userInterface->hsCurrentFrame->setValue(_scenePlayer->getCurrentFrame()-1);
+                }
             }
         }
         break;

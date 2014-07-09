@@ -105,3 +105,13 @@ void CloudTools::clip(Object& object)
 
     //return clipped;
 }
+
+Object CloudTools::merge(std::initializer_list<Object> objects)
+{
+    Object mergeObject;
+
+    for (auto& object : objects)
+        mergeObject.merge(object);
+
+    return mergeObject;
+}
