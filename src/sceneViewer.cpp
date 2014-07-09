@@ -196,6 +196,7 @@ void SceneViewer::drawGeometry(const uint povSize)
 
     for (uint i = 0; i < povSize; ++i)
     {
+        //std::clog << "draw frame: " << _scenePlayer->getCurrentFrame() << "; pov: " << i << std::endl;
         Object object = _modelReader->getObject(_scenePlayer->getCurrentFrame(), i);
 
         glBindBuffer(GL_ARRAY_BUFFER, _vertexBuffer);
@@ -221,13 +222,13 @@ void SceneViewer::drawGeometry(const uint povSize)
         glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 0, (void*)0);
 
         glDrawArrays(GL_POINTS, 0, object.getVertexCount());
-
-        glDisableVertexAttribArray(0);
-        glDisableVertexAttribArray(1);
-
-        glBindBuffer(GL_ARRAY_BUFFER, 0);
-        glUseProgram(0);
     }
+
+    glDisableVertexAttribArray(0);
+    glDisableVertexAttribArray(1);
+
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glUseProgram(0);
 }
 
 void SceneViewer::draw()
