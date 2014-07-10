@@ -15,6 +15,7 @@ class CloudTools
 public:
     CloudTools();
     ~CloudTools();
+    void initializeDistanceFunctions(const float radius);
 
     void clip(Object& object);
     Object merge(std::initializer_list<Object>);
@@ -24,7 +25,7 @@ public:
     void scale(Object &object, glm::vec3 matrix);
 
 private:
-    void initializeDistanceFunctions();
+    void instanciateDistanceFunctions();
 
     std::map< std::string, std::function< float(glm::vec3&, std::vector<float>&) > > _distanceFunctions;
     Calibration _calibration;

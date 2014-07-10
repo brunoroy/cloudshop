@@ -10,7 +10,8 @@
 #include "modelReader.h"
 #include "shaderSources.h"
 #include "ui_mainWindow.h"
-#include "ui_dialogTransforms.h"
+#include "ui_transformsDialog.h"
+#include "ui_clippingDialog.h"
 #include "config.h"
 
 #include <glm/glm.hpp>
@@ -27,7 +28,7 @@ using namespace qglviewer;
 class SceneViewer : public QGLViewer
 {
 public:
-    SceneViewer(Ui_MainWindow *userInterface, Ui_TransformsDialog *transformsDialog);
+    SceneViewer(Ui_MainWindow *userInterface, Ui_TransformsDialog *transformsDialog, Ui_ClippingDialog *clippingDialog);
     ~SceneViewer();
 
     void drawGeometry(const uint povSize = 1);
@@ -75,7 +76,10 @@ private:
 
     Ui_MainWindow *_userInterface;
     Ui_TransformsDialog *_transformsDialog;
-    std::shared_ptr<QDialog> _dialog;
+    Ui_ClippingDialog *_clippingDialog;
+    std::shared_ptr<QDialog> _transformsWindow;
+    std::shared_ptr<QDialog> _clippingWindow;
+
     std::shared_ptr<Camera> _sceneCamera;
     std::shared_ptr<ScenePlayer> _scenePlayer;
     std::shared_ptr<ModelReader> _modelReader;

@@ -7,7 +7,7 @@ Mediator::Mediator()
     _mainWindow.reset(new QMainWindow());
     _userInterface.setupUi(_mainWindow.get());
 
-    _sceneViewer.reset(new SceneViewer(&_userInterface, &_transformsDialog));
+    _sceneViewer.reset(new SceneViewer(&_userInterface, &_transformsDialog, &_clippingDialog));
     _sceneViewer->stopAnimation();
 
     initViewer();
@@ -39,6 +39,7 @@ void Mediator::initSignalSlot()
     //Tools
     connect(_userInterface.actionMatch, SIGNAL(triggered(bool)), this, SLOT(setMatching(bool)));
     connect(_userInterface.actionMerge, SIGNAL(triggered()), this, SLOT(merge()));
+    connect(_userInterface.actionShapeClipping, SIGNAL(triggered(bool)), this, SLOT(setClipping(bool)));
 
     //Help
     connect(_userInterface.actionAbout, SIGNAL(triggered()), this, SLOT(about()));
@@ -155,6 +156,11 @@ void Mediator::merge()
     setMatching(false);
     _userInterface.actionMatch->setEnabled(false);
     _sceneViewer->mergeObjects();
+}
+
+void Mediator::setClipping(bool value)
+{
+    _sceneViewer->setShapeClipping(value);
 }
 
 void Mediator::about()

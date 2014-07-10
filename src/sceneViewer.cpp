@@ -10,7 +10,7 @@
 
 #include "timer.h"
 
-SceneViewer::SceneViewer(Ui_MainWindow *userInterface, Ui_TransformsDialog *transformsDialog):
+SceneViewer::SceneViewer(Ui_MainWindow *userInterface, Ui_TransformsDialog *transformsDialog, Ui_ClippingDialog *clippingDialog):
     _matching(false),
     _shapeClipping(false),
     _merge(false),
@@ -18,13 +18,16 @@ SceneViewer::SceneViewer(Ui_MainWindow *userInterface, Ui_TransformsDialog *tran
 {
     _userInterface = userInterface;
     _transformsDialog = transformsDialog;
+    _clippingDialog = clippingDialog;
     _sceneCamera.reset(this->camera());
     _modelReader.reset(new ModelReader());
     _cloudTools.reset(new CloudTools());
     _scenePlayer.reset(new ScenePlayer());
 
-    _dialog.reset(new QDialog());
-    _transformsDialog->setupUi(_dialog.get());
+    _transformsWindow.reset(new QDialog());
+    _transformsDialog->setupUi(_transformsWindow.get());
+    _clippingWindow.reset(new QDialog());
+    _clippingDialog->setupUi(_clippingWindow.get());
 }
 
 SceneViewer::~SceneViewer()
@@ -188,9 +191,30 @@ void SceneViewer::setShapeClipping(const bool clipping)
 {
     _shapeClipping = clipping;
 
-    uint currentFrame = _scenePlayer->getCurrentFrame();
-    Object object = _modelReader->getObject(currentFrame);
-    _cloudTools->clip(object);
+    if (_shapeClipping)
+    {
+        _clippingWindow->setWindowTitle(QString("Clipping"));
+        if (_clippingWindow->exec())
+        {
+            float radius = static_cast<float>(_clippingDialog->dsRadius->value());
+            //_cloudTools->changeFunctionsParams(radius);
+            _cloudTools->initializeDistanceFunctions(radius);
+
+            uint currentFrame = _scenePlayer->getCurrentFrame();
+            if (_objectSelected != -1)
+            {
+                Object& object = _modelReader->getObject(currentFrame, _objectSelected);
+                _cloudTools->clip(object);
+            }
+            else
+            {
+                Object& object = _modelReader->getObject(currentFrame);
+                _cloudTools->clip(object);
+            }
+        }
+    }
+    else
+        _modelReader->unclip();
 }
 
 void SceneViewer::drawGeometry(const uint povSize)
@@ -233,6 +257,8 @@ void SceneViewer::drawGeometry(const uint povSize)
         glBindBuffer(GL_ARRAY_BUFFER, _colorBuffer);
         glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
 
+        //std::clog << "vertices: " << object.getVertexCount() << std::endl;
+
         glDrawArrays(GL_POINTS, 0, object.getVertexCount());
     }
 
@@ -262,9 +288,12 @@ void SceneViewer::mergeObjects()
         else
             object = _cloudTools->merge({objects.at(0)});
 
+        //std::clog << "vertices: " << object.getVertexCount() << std::endl;
         sceneObjects.addObject(object);
     }
 
+    //std::clog << "objects: " << sceneObjects.getSceneSize() << std::endl;
+    //std::clog << "vertices: " << sceneObjects.getObject(0).getVertexCount() << std::endl;
     _modelReader->setSceneObjects(sceneObjects);
     frameCount = _modelReader->getSceneObjects().getSceneSize();
     _scenePlayer->init(frameCount);
@@ -351,10 +380,10 @@ void SceneViewer::keyPressEvent(QKeyEvent* event)
                 }
                 else if (event->key() == Qt::Key_R && _objectSelected != -1)
                 {
-                    _dialog->setWindowTitle(QString("Rotate"));
-                    if (_dialog->exec())
+                    _transformsWindow->setWindowTitle(QString("Rotate"));
+                    resetTransforms();
+                    if (_transformsWindow->exec())
                     {
-                        resetTransforms();
                         glm::vec3 rotate(_transformsDialog->dsX->value(), _transformsDialog->dsY->value(), _transformsDialog->dsZ->value());
                         uint currentFrame = _scenePlayer->getCurrentFrame();
                         Object& object = _modelReader->getObject(currentFrame, _objectSelected);
@@ -364,10 +393,10 @@ void SceneViewer::keyPressEvent(QKeyEvent* event)
                 }
                 else if (event->key() == Qt::Key_T && _objectSelected != -1)
                 {
-                    _dialog->setWindowTitle(QString("Translate"));
-                    if (_dialog->exec())
+                    _transformsWindow->setWindowTitle(QString("Translate"));
+                    resetTransforms();
+                    if (_transformsWindow->exec())
                     {
-                        resetTransforms();
                         glm::vec3 translate(_transformsDialog->dsX->value(), _transformsDialog->dsY->value(), _transformsDialog->dsZ->value());
                         uint currentFrame = _scenePlayer->getCurrentFrame();
                         Object& object = _modelReader->getObject(currentFrame, _objectSelected);
@@ -377,8 +406,8 @@ void SceneViewer::keyPressEvent(QKeyEvent* event)
                 }
                 else if (event->key() == Qt::Key_S && _objectSelected != -1)
                 {
-                    _dialog->setWindowTitle(QString("Scale"));
-                    if (_dialog->exec())
+                    _transformsWindow->setWindowTitle(QString("Scale"));
+                    if (_transformsWindow->exec())
                     {
                         glm::vec3 scale(_transformsDialog->dsX->value(), _transformsDialog->dsY->value(), _transformsDialog->dsZ->value());
                         uint currentFrame = _scenePlayer->getCurrentFrame();
@@ -394,6 +423,9 @@ void SceneViewer::keyPressEvent(QKeyEvent* event)
         {
             if (event->key() == Qt::Key_R)
             {
+                _userInterface->actionMatch->setEnabled(true);
+                _userInterface->actionMatch->setChecked(false);
+                //_userInterface->actionShapeClipping->setChecked(false);
                 _userInterface->widgetScenePlayer->hide();
                 _scenePlayer->init(0);
                 _modelReader->resetScene();

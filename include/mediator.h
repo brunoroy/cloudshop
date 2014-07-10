@@ -37,6 +37,7 @@ public slots:
     //Tools
     void setMatching(bool value);
     void merge();
+    void setClipping(bool value);
 
     //Help
     void about();
@@ -51,6 +52,7 @@ private:
     std::shared_ptr<QGridLayout> _viewerLayout;
     Ui_MainWindow _userInterface;
     Ui_TransformsDialog _transformsDialog;
+    Ui_ClippingDialog _clippingDialog;
 
     std::shared_ptr<CustomProgressBar> _progressBar;
 
