@@ -134,10 +134,11 @@ public:
         for (uint i = 0; i < object.getVertexCount(); ++i)
         {
             vertex = object.getVertex(i);
-            _positions.push_back(vertex.position);
+            glm::vec4 transformedPosition = object.getTransforms() * glm::vec4(vertex.position, 1.0f);
+            _positions.push_back(glm::vec3(transformedPosition));
             _colors.push_back(vertex.color);
             _normals.push_back(vertex.normal);
-            _vertices.push_back(vertex);
+            _vertices.push_back(Vertex(glm::vec3(transformedPosition), vertex.color, vertex.normal));
         }
         _vertexCount += object.getVertexCount();
         _id = object.getId();
