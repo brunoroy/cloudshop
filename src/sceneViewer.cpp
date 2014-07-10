@@ -324,6 +324,13 @@ void SceneViewer::topCameraView()
     _userInterface->statusBar->showMessage("Top view", 3000);
 }
 
+void SceneViewer::resetTransforms()
+{
+    _transformsDialog->dsX->setValue(0.0);
+    _transformsDialog->dsY->setValue(0.0);
+    _transformsDialog->dsZ->setValue(0.0);
+}
+
 void SceneViewer::keyPressEvent(QKeyEvent* event)
 {
     switch (event->modifiers())
@@ -344,26 +351,40 @@ void SceneViewer::keyPressEvent(QKeyEvent* event)
                 }
                 else if (event->key() == Qt::Key_R && _objectSelected != -1)
                 {
-                    _dialog->setWindowTitle(QString("Rotation"));
+                    _dialog->setWindowTitle(QString("Rotate"));
                     if (_dialog->exec())
                     {
-                        glm::vec3 rotation(_transformsDialog->dsX->value(), _transformsDialog->dsY->value(), _transformsDialog->dsZ->value());
+                        resetTransforms();
+                        glm::vec3 rotate(_transformsDialog->dsX->value(), _transformsDialog->dsY->value(), _transformsDialog->dsZ->value());
                         uint currentFrame = _scenePlayer->getCurrentFrame();
                         Object& object = _modelReader->getObject(currentFrame, _objectSelected);
 
-                        _cloudTools->rotate(object, rotation);
+                        _cloudTools->rotate(object, rotate);
                     }
                 }
                 else if (event->key() == Qt::Key_T && _objectSelected != -1)
                 {
-                    _dialog->setWindowTitle(QString("Translation"));
+                    _dialog->setWindowTitle(QString("Translate"));
                     if (_dialog->exec())
                     {
-                        glm::vec3 translation(_transformsDialog->dsX->value(), _transformsDialog->dsY->value(), _transformsDialog->dsZ->value());
+                        resetTransforms();
+                        glm::vec3 translate(_transformsDialog->dsX->value(), _transformsDialog->dsY->value(), _transformsDialog->dsZ->value());
                         uint currentFrame = _scenePlayer->getCurrentFrame();
                         Object& object = _modelReader->getObject(currentFrame, _objectSelected);
 
-                        _cloudTools->translate(object, translation);
+                        _cloudTools->translate(object, translate);
+                    }
+                }
+                else if (event->key() == Qt::Key_S && _objectSelected != -1)
+                {
+                    _dialog->setWindowTitle(QString("Scale"));
+                    if (_dialog->exec())
+                    {
+                        glm::vec3 scale(_transformsDialog->dsX->value(), _transformsDialog->dsY->value(), _transformsDialog->dsZ->value());
+                        uint currentFrame = _scenePlayer->getCurrentFrame();
+                        Object& object = _modelReader->getObject(currentFrame, _objectSelected);
+
+                        _cloudTools->scale(object, scale);
                     }
                 }
             }

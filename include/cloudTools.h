@@ -21,6 +21,7 @@ public:
 
     void translate(Object& object, glm::vec3 matrix);
     void rotate(Object& object, glm::vec3 matrix);
+    void scale(Object &object, glm::vec3 matrix);
 
 private:
     void initializeDistanceFunctions();

@@ -36,6 +36,7 @@ public:
     void initScenePlayer(const uint frameCount);
     std::shared_ptr<ScenePlayer> getScenePlayer();
     void mergeObjects();
+    void resetTransforms();
 
 public slots:
     void setMatching(const bool matching);

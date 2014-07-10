@@ -131,3 +131,10 @@ void CloudTools::rotate(Object &object, glm::vec3 matrix)
     transforms = glm::rotate(transforms, matrix.z, glm::vec3(0.0, 0.0, 1.0));
     object.setTransforms(transforms);
 }
+
+void CloudTools::scale(Object &object, glm::vec3 matrix)
+{
+    glm::mat4 transformsObject = object.getTransforms();
+    glm::mat4 transforms = glm::scale(transformsObject, matrix);
+    object.setTransforms(transforms);
+}
