@@ -15,12 +15,13 @@ struct ShaderSources
         layout(location = 1) in vec3 color;
         uniform float alpha;
         uniform mat4 matrix;
+        uniform mat4 transforms;
         out vec4 vertexColor;
 
         void main()
         {
             vertexColor = vec4(color, alpha);
-            gl_Position =  matrix * vec4(position, 1.0);
+            gl_Position =  matrix * transforms * vec4(position, 1.0);
         }
     )"};
 

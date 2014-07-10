@@ -8,6 +8,7 @@
 #include "modelReader.h"
 
 #include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
 
 class CloudTools
 {
@@ -17,6 +18,9 @@ public:
 
     void clip(Object& object);
     Object merge(std::initializer_list<Object>);
+
+    void translate(Object& object, glm::vec3 matrix);
+    void rotate(Object& object, glm::vec3 matrix);
 
 private:
     void initializeDistanceFunctions();

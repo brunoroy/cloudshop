@@ -70,7 +70,11 @@ public:
     std::vector<glm::vec3> getNormals() {return _normals;}
     uint getId() {return _id;}
     ull getTimestamp() {return _ts;}
-    glm::mat4 getTransforms() {return _transforms;}
+    glm::mat4 getTransforms()
+    {
+        return _transforms;
+    }
+    void setTransforms(glm::mat4 transforms) {_transforms = transforms;}
 
     void setClipped(const bool clipped)
     {
@@ -136,7 +140,7 @@ public:
         if (lastId > _idSize)
             _idSize = lastId;
     }
-    Object getObject(const uint frame, const uint id)
+    Object& getObject(const uint frame, const uint id)
     {
         uint stride = _objects.size()/getIdSize();
         uint objectIndex = (stride * id) + frame;
@@ -175,14 +179,10 @@ public:
 
     bool isSceneEmpty() {return (_sceneObjects.getSceneSize() == 0);}
     SceneObjects getSceneObjects() {return _sceneObjects;}
-    Object getObject(const uint frame, const uint id = 0) {return _sceneObjects.getObject(frame, id);}
+    Object& getObject(const uint frame, const uint id = 0) {return _sceneObjects.getObject(frame, id);}
     void resetScene() {_sceneObjects.reset();}
     void addObject(Object object) {_sceneObjects.addObject(object);}
-    void setSceneObjects(SceneObjects sceneObjects)
-    {
-        _sceneObjects = sceneObjects;
-        //for (uint i = 0; i < sceneObjects.getIdSize(); ++i)
-    }
+    void setSceneObjects(SceneObjects sceneObjects) {_sceneObjects = sceneObjects;}
 
 private:
     std::vector<std::string> split(const std::string input);

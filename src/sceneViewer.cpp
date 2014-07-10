@@ -6,6 +6,7 @@
 #include <QVector>
 
 #include <limits>
+//#include <glm/gtx/quaternion.hpp>
 
 #include "timer.h"
 
@@ -140,12 +141,13 @@ void SceneViewer::loadShaders()
 
     _matrixID = glGetUniformLocation(_programID, "matrix");
     _alphaID = glGetUniformLocation(_programID, "alpha");
+    _transformsID = glGetUniformLocation(_programID, "transforms");
 
     glDeleteShader(_shaderID[0]);
     glDeleteShader(_shaderID[1]);
 }
 
-/*void printMat(glm::mat4  mat)
+void printMat(glm::mat4  mat)
 {
     int i,j;
     for (j=0; j<4; j++){
@@ -154,7 +156,15 @@ void SceneViewer::loadShaders()
         }
         printf("\n");
     }
-}*/
+}
+
+void printVec(glm::vec3  vec)
+{
+    int i;
+    for (i=0; i<4; i++)
+        printf("%f ",vec[i]);
+    printf("\n");
+}
 
 void SceneViewer::setMatching(const bool matching)
 {
@@ -199,9 +209,11 @@ void SceneViewer::drawGeometry(const uint povSize)
 
         GLdouble matrix[16];
         _sceneCamera->getModelViewProjectionMatrix(matrix);
+        //_sceneCamera->getProjectionMatrix(matrix);
         _matrix = glm::make_mat4(matrix);
 
         glUniformMatrix4fv(_matrixID, 1, GL_FALSE, &_matrix[0][0]);
+        glUniformMatrix4fv(_transformsID, 1, GL_FALSE, &object.getTransforms()[0][0]);
 
         if (_objectSelected == -1)
             glUniform1f(_alphaID, 1.0f);
@@ -333,12 +345,26 @@ void SceneViewer::keyPressEvent(QKeyEvent* event)
                 else if (event->key() == Qt::Key_R && _objectSelected != -1)
                 {
                     _dialog->setWindowTitle(QString("Rotation"));
-                    _dialog->show();
+                    if (_dialog->exec())
+                    {
+                        glm::vec3 rotation(_transformsDialog->dsX->value(), _transformsDialog->dsY->value(), _transformsDialog->dsZ->value());
+                        uint currentFrame = _scenePlayer->getCurrentFrame();
+                        Object& object = _modelReader->getObject(currentFrame, _objectSelected);
+
+                        _cloudTools->rotate(object, rotation);
+                    }
                 }
                 else if (event->key() == Qt::Key_T && _objectSelected != -1)
                 {
                     _dialog->setWindowTitle(QString("Translation"));
-                    _dialog->show();
+                    if (_dialog->exec())
+                    {
+                        glm::vec3 translation(_transformsDialog->dsX->value(), _transformsDialog->dsY->value(), _transformsDialog->dsZ->value());
+                        uint currentFrame = _scenePlayer->getCurrentFrame();
+                        Object& object = _modelReader->getObject(currentFrame, _objectSelected);
+
+                        _cloudTools->translate(object, translation);
+                    }
                 }
             }
         }

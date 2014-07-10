@@ -66,6 +66,7 @@ private:
     GLuint _programID;
     GLuint _matrixID;
     GLuint _alphaID;
+    GLuint _transformsID;
     glm::mat4 _matrix = glm::mat4(1.0f);
 
     qglviewer::Vec _cameraOrigin;

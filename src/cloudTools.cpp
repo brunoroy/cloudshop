@@ -115,3 +115,19 @@ Object CloudTools::merge(std::initializer_list<Object> objects)
 
     return mergeObject;
 }
+
+void CloudTools::translate(Object &object, glm::vec3 matrix)
+{
+    glm::mat4 transformsObject = object.getTransforms();
+    glm::mat4 transforms = glm::translate(transformsObject, matrix);
+    object.setTransforms(transforms);
+}
+
+void CloudTools::rotate(Object &object, glm::vec3 matrix)
+{
+    glm::mat4 transformsObject = object.getTransforms();
+    glm::mat4 transforms = glm::rotate(transformsObject, matrix.x, glm::vec3(1.0, 0.0, 0.0));
+    transforms = glm::rotate(transforms, matrix.y, glm::vec3(0.0, 1.0, 0.0));
+    transforms = glm::rotate(transforms, matrix.z, glm::vec3(0.0, 0.0, 1.0));
+    object.setTransforms(transforms);
+}
