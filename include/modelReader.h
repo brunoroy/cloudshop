@@ -9,6 +9,7 @@
 #include <mutex>
 
 #include <glm/glm.hpp>
+#include <QProgressBar>
 
 #include "config.h"
 
@@ -118,7 +119,7 @@ public:
         if (lastId > _idSize)
             _idSize = lastId;
     }
-    Object getObject(const uint frame, const uint id)
+    Object getObject(const uint frame, const uint id = 0)
     {
         uint stride = _objects.size()/getIdSize();
         uint objectIndex = (stride * id) + frame;
@@ -155,7 +156,7 @@ public:
     bool importModel(std::string path);
 
     bool exportPLY(const std::string filename, const uint frame);
-    bool exportFrames(const std::string filename);
+    bool exportFrames(const std::string filename, QProgressBar* progressBar);
 
     bool isSceneEmpty() {return (_sceneObjects.getSceneSize() == 0);}
     SceneObjects getSceneObjects() {return _sceneObjects;}
@@ -165,6 +166,7 @@ public:
 private:
     std::vector<std::string> split(const std::string input);
 
+    bool _hasPosition, _hasColor, _hasNormal;
     SceneObjects _sceneObjects;
 };
 

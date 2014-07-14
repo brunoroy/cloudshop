@@ -3,7 +3,13 @@
 #include <sstream>
 #include <iterator>
 
-ModelReader::ModelReader()
+#include <iostream>
+#include <fstream>
+
+ModelReader::ModelReader():
+    _hasPosition(false),
+    _hasNormal(false),
+    _hasColor(false)
 {
 }
 
@@ -29,9 +35,9 @@ bool ModelReader::importPCD(const std::string filename)
 
 bool ModelReader::importPLY(const std::string filename)
 {
-    bool hasPosition = false;
-    bool hasNormal = false;
-    bool hasColor = false;
+    _hasPosition = false;
+    _hasNormal = false;
+    _hasColor = false;
     uint positionComp[3];
     uint colorComp[3];
     uint normalComp[3];
@@ -65,7 +71,7 @@ bool ModelReader::importPLY(const std::string filename)
                 else if (values.at(2).compare("z") == 0)
                 {
                     positionComp[2] = compIndex;
-                    hasPosition = true;
+                    _hasPosition = true;
                 }
 
                 if (values.at(2).compare("red") == 0)
@@ -75,7 +81,7 @@ bool ModelReader::importPLY(const std::string filename)
                 else if (values.at(2).compare("blue") == 0)
                 {
                     colorComp[2] = compIndex;
-                    hasColor = true;
+                    _hasColor = true;
                 }
 
                 if (values.at(2).compare("nx") == 0)
@@ -85,7 +91,7 @@ bool ModelReader::importPLY(const std::string filename)
                 else if (values.at(2).compare("nz") == 0)
                 {
                     normalComp[2] = compIndex;
-                    hasNormal = true;
+                    _hasNormal = true;
                 }
 
                 compIndex++;
@@ -102,17 +108,17 @@ bool ModelReader::importPLY(const std::string filename)
 
                 values = split(line);
 
-                if (hasPosition)
+                if (_hasPosition)
                     point = glm::vec3(std::stof(values.at(positionComp[0])), std::stof(values.at(positionComp[1])), std::stof(values.at(positionComp[2])));
                 else
                     point = glm::vec3(0.0f, 0.0f, 0.0f);
 
-                if (hasNormal)
+                if (_hasNormal)
                     normal = glm::vec3(std::stof(values.at(normalComp[0])), std::stof(values.at(normalComp[1])), std::stof(values.at(normalComp[2])));
                 else
                     normal = glm::vec3(0.0f, 0.0f, 0.0f);
 
-                if (hasColor)
+                if (_hasColor)
                     color = glm::vec4(std::stof(values.at(colorComp[0]))/255.0f, std::stof(values.at(colorComp[1]))/255.0f, std::stof(values.at(colorComp[2]))/255.0f, 1.0f);
                 else
                     color = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
@@ -164,17 +170,48 @@ bool ModelReader::exportPLY(const std::string filename, const uint frame)
 {
     if (!isSceneEmpty())
     {
+        Object object = _sceneObjects.getObject(frame);
+
         std::string frameFilename(filename.substr(0, filename.find_last_of(".")));
         frameFilename.append("_").append(std::to_string(frame)).append(".ply");
-        std::clog << frameFilename << std::endl;
+        //std::clog << frameFilename << std::endl;
+
+        std::ofstream exportFile(frameFilename);
+        if (exportFile.is_open())
+        {
+            uint vertexCount = object.getVertexCount();
+            exportFile << "ply\nformat ascii 1.0\nelement vertex " << std::to_string(vertexCount) << std::endl;
+            if (_hasPosition)
+                exportFile << "property float x\nproperty float y\nproperty float z" << std::endl;
+            if (_hasNormal)
+                exportFile << "property float nx\nproperty float ny\nproperty float nz" << std::endl;
+            if (_hasColor)
+                exportFile << "property uchar red\nproperty uchar green\nproperty uchar blue" << std::endl;
+            exportFile << "end_header" << std::endl;
+
+            for (uint i = 0; i < vertexCount; ++i)
+            {
+                Vertex v = object.getVertex(i);
+
+                if (_hasPosition)
+                    exportFile << std::to_string(v.position.x) << " " << std::to_string(v.position.y) << " " << std::to_string(v.position.z) << " ";
+                if (_hasNormal)
+                    exportFile << std::to_string(v.normal.x) << " " << std::to_string(v.normal.y) << " " << std::to_string(v.normal.z) << " ";
+                if (_hasColor)
+                    exportFile << std::to_string(v.color.x) << " " << std::to_string(v.color.y) << " " << std::to_string(v.color.z) << " ";
+                exportFile << std::endl;
+            }
+            exportFile.close();
+        }
     }
 }
 
-bool ModelReader::exportFrames(const std::string filename)
+bool ModelReader::exportFrames(const std::string filename, QProgressBar* progressBar)
 {
     uint frameCount = _sceneObjects.getSceneSize();
     for (uint i = 0; i < frameCount; ++i)
     {
         exportPLY(filename, i);
+        progressBar->setValue(i+1);
     }
 }

@@ -340,5 +340,5 @@ void SceneViewer::exportGeometry(const std::string filename, const uint currentF
     if (currentFrame != -1)
         _modelReader->exportPLY(filename, currentFrame);
     else
-        _modelReader->exportFrames(filename);
+        _modelReader->exportFrames(filename, _userInterface->progressBar);
 }

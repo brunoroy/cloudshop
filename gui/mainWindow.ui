@@ -15,18 +15,20 @@
   </property>
   <widget class="QWidget" name="centralWidget">
    <layout class="QGridLayout" name="gridLayout">
-    <item row="0" column="0">
-     <widget class="QWidget" name="widgetSceneViewer" native="true">
+    <item row="2" column="0">
+     <widget class="QWidget" name="widgetProgressBar" native="true">
       <property name="sizePolicy">
-       <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+       <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
         <horstretch>0</horstretch>
         <verstretch>0</verstretch>
        </sizepolicy>
       </property>
-     </widget>
-    </item>
-    <item row="2" column="0">
-     <widget class="QWidget" name="widgetProgressBar" native="true">
+      <property name="minimumSize">
+       <size>
+        <width>0</width>
+        <height>0</height>
+       </size>
+      </property>
       <layout class="QGridLayout" name="gridLayout_2">
        <property name="leftMargin">
         <number>0</number>
@@ -40,6 +42,13 @@
        <property name="bottomMargin">
         <number>0</number>
        </property>
+       <item row="0" column="0">
+        <widget class="QProgressBar" name="progressBar">
+         <property name="value">
+          <number>0</number>
+         </property>
+        </widget>
+       </item>
       </layout>
      </widget>
     </item>
@@ -65,13 +74,6 @@
          </property>
         </widget>
        </item>
-       <item row="0" column="1">
-        <widget class="QSlider" name="hsCurrentFrame">
-         <property name="orientation">
-          <enum>Qt::Horizontal</enum>
-         </property>
-        </widget>
-       </item>
        <item row="0" column="2">
         <widget class="QLineEdit" name="eCurrentFrame">
          <property name="maximumSize">
@@ -88,7 +90,24 @@
          </property>
         </widget>
        </item>
+       <item row="0" column="1">
+        <widget class="QSlider" name="hsCurrentFrame">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+        </widget>
+       </item>
       </layout>
+     </widget>
+    </item>
+    <item row="0" column="0">
+     <widget class="QWidget" name="widgetSceneViewer" native="true">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
      </widget>
     </item>
    </layout>
@@ -153,6 +172,17 @@
    <addaction name="menuFile"/>
    <addaction name="menuTools"/>
    <addaction name="menuAbout"/>
+  </widget>
+  <widget class="QToolBar" name="toolBar">
+   <property name="windowTitle">
+    <string>toolBar</string>
+   </property>
+   <attribute name="toolBarArea">
+    <enum>TopToolBarArea</enum>
+   </attribute>
+   <attribute name="toolBarBreak">
+    <bool>false</bool>
+   </attribute>
   </widget>
   <action name="actionQuit">
    <property name="text">

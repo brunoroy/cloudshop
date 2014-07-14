@@ -9,14 +9,14 @@
 
 #include "sceneViewer.h"
 
-class CustomProgressBar : public QProgressBar
+/*class CustomProgressBar : public QProgressBar
 {
 public:
     CustomProgressBar() {}
     ~CustomProgressBar() {}
 
     void updateValue(const int value = 1) {this->setValue(this->value()+value);}
-};
+};*/
 
 class Mediator : public QObject
 {
@@ -52,7 +52,7 @@ private:
     std::shared_ptr<QGridLayout> _viewerLayout;
     Ui_MainWindow _userInterface;
 
-    std::shared_ptr<CustomProgressBar> _progressBar;
+    //std::shared_ptr<CustomProgressBar> _progressBar;
 
     void toggleProgressBar(const int max = 100);
     void toggleScenePlayer();

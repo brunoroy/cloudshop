@@ -51,9 +51,9 @@ void Mediator::initSignalSlot()
 
 void Mediator::initUserInterface()
 {
-    _progressBar.reset(new CustomProgressBar());
+    //_progressBar.reset(new CustomProgressBar());
     //_progressBar->setFormat(QString("%p%"));
-    _userInterface.widgetProgressBar->layout()->addWidget(_progressBar.get());
+    //_userInterface.widgetProgressBar->layout()->addWidget(_progressBar.get());
     _userInterface.widgetProgressBar->hide();
 
     _userInterface.hsCurrentFrame->setMinimum(1);
@@ -67,14 +67,14 @@ void Mediator::toggleProgressBar(const int max)
     if (_userInterface.widgetProgressBar->isHidden())
     {
         _userInterface.widgetProgressBar->show();
-        _progressBar->setValue(0);
-        _progressBar->setMaximum(max);
+        _userInterface.progressBar->setValue(0);
+        _userInterface.progressBar->setMaximum(max);
     }
     else
     {
         _userInterface.widgetProgressBar->hide();
-        _progressBar->setValue(0);
-        _progressBar->setMaximum(100);
+        _userInterface.progressBar->setValue(0);
+        _userInterface.progressBar->setMaximum(100);
     }
 }
 
@@ -137,7 +137,8 @@ void Mediator::importGeometry()
                 //std::clog << path << std::endl;
                 _sceneViewer->importGeometry(path);
                 _sceneViewer->update();
-                _progressBar->updateValue();
+                _userInterface.progressBar->setValue(_userInterface.progressBar->value()+1);
+                //_progressBar->updateValue();
             }
             toggleProgressBar();
             toggleScenePlayer();
@@ -162,7 +163,12 @@ void Mediator::exportAllFrames()
 {
     QString exportFilename = QFileDialog::getSaveFileName(_mainWindow.get(), "Export geometry", "output/");
     if (!exportFilename.isEmpty())
+    {
+        QCoreApplication::processEvents();
+        toggleProgressBar(_sceneViewer->getScenePlayer()->getFrameCount());
         _sceneViewer->exportGeometry(exportFilename.toStdString());
+        toggleProgressBar();
+    }
 }
 
 void Mediator::about()
