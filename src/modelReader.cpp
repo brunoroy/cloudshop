@@ -159,3 +159,22 @@ std::vector<std::string> ModelReader::split(const std::string input)
     std::istringstream streamInput(input);
     return {std::istream_iterator<std::string>{streamInput}, std::istream_iterator<std::string>{}};
 }
+
+bool ModelReader::exportPLY(const std::string filename, const uint frame)
+{
+    if (!isSceneEmpty())
+    {
+        std::string frameFilename(filename.substr(0, filename.find_last_of(".")));
+        frameFilename.append("_").append(std::to_string(frame)).append(".ply");
+        std::clog << frameFilename << std::endl;
+    }
+}
+
+bool ModelReader::exportFrames(const std::string filename)
+{
+    uint frameCount = _sceneObjects.getSceneSize();
+    for (uint i = 0; i < frameCount; ++i)
+    {
+        exportPLY(filename, i);
+    }
+}

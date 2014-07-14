@@ -113,7 +113,22 @@
      </property>
      <addaction name="actionImportGeometry"/>
     </widget>
+    <widget class="QMenu" name="menuExport">
+     <property name="title">
+      <string>Export</string>
+     </property>
+     <widget class="QMenu" name="menuGeometry">
+      <property name="title">
+       <string>Geometry</string>
+      </property>
+      <addaction name="actionExportCurrentFrame"/>
+      <addaction name="actionExportAllFrames"/>
+     </widget>
+     <addaction name="menuGeometry"/>
+     <addaction name="actionExportTransforms"/>
+    </widget>
     <addaction name="menuImport"/>
+    <addaction name="menuExport"/>
     <addaction name="actionQuit"/>
    </widget>
    <widget class="QMenu" name="menuAbout">
@@ -270,6 +285,24 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+M</string>
+   </property>
+  </action>
+  <action name="actionExportTransforms">
+   <property name="text">
+    <string>Transforms</string>
+   </property>
+  </action>
+  <action name="actionExportCurrentFrame">
+   <property name="text">
+    <string>Current frame</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+E</string>
+   </property>
+  </action>
+  <action name="actionExportAllFrames">
+   <property name="text">
+    <string>All frames</string>
    </property>
   </action>
  </widget>

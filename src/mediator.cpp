@@ -34,6 +34,8 @@ void Mediator::initSignalSlot()
 {
     //File
     connect(_userInterface.actionImportGeometry, SIGNAL(triggered()), this, SLOT(importGeometry()));
+    connect(_userInterface.actionExportCurrentFrame, SIGNAL(triggered()), this, SLOT(exportCurrentFrame()));
+    connect(_userInterface.actionExportAllFrames, SIGNAL(triggered()), this, SLOT(exportAllFrames()));
     connect(_userInterface.actionQuit, SIGNAL(triggered()), this, SLOT(quit()));
 
     //Tools
@@ -147,6 +149,20 @@ void Mediator::importGeometry()
         else
             std::clog << geometryFolder.toStdString() << " is empty." << std::endl;
     }
+}
+
+void Mediator::exportCurrentFrame()
+{
+    QString exportFilename = QFileDialog::getSaveFileName(_mainWindow.get(), "Export geometry", "output/");
+    if (!exportFilename.isEmpty())
+        _sceneViewer->exportGeometry(exportFilename.toStdString(), _sceneViewer->getScenePlayer()->getCurrentFrame());
+}
+
+void Mediator::exportAllFrames()
+{
+    QString exportFilename = QFileDialog::getSaveFileName(_mainWindow.get(), "Export geometry", "output/");
+    if (!exportFilename.isEmpty())
+        _sceneViewer->exportGeometry(exportFilename.toStdString());
 }
 
 void Mediator::about()

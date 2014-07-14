@@ -154,6 +154,9 @@ public:
     std::string getFileExtension(const std::string filename);
     bool importModel(std::string path);
 
+    bool exportPLY(const std::string filename, const uint frame);
+    bool exportFrames(const std::string filename);
+
     bool isSceneEmpty() {return (_sceneObjects.getSceneSize() == 0);}
     SceneObjects getSceneObjects() {return _sceneObjects;}
     Object getObject(const uint frame, const uint id = 0) {return _sceneObjects.getObject(frame, id);}

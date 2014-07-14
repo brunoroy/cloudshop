@@ -334,3 +334,11 @@ void SceneViewer::importGeometry(const std::string filename)
 {
     _modelReader->importModel(filename);
 }
+
+void SceneViewer::exportGeometry(const std::string filename, const uint currentFrame)
+{
+    if (currentFrame != -1)
+        _modelReader->exportPLY(filename, currentFrame);
+    else
+        _modelReader->exportFrames(filename);
+}

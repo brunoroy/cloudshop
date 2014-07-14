@@ -34,6 +34,7 @@ public:
     void importGeometry(const std::string filename);
     void initScenePlayer(const uint frameCount);
     std::shared_ptr<ScenePlayer> getScenePlayer();
+    void exportGeometry(const std::string filename, const uint currentFrame = -1);
 
 public slots:
     void setMatching(const bool matching);
@@ -43,7 +44,7 @@ protected:
     void init();
     void animate();
     void draw();
-    void keyPressEvent(QKeyEvent* event);    
+    void keyPressEvent(QKeyEvent* event);
 
 private:
     //Camera

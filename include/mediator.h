@@ -32,6 +32,8 @@ public:
 public slots:
     //File
     void importGeometry();
+    void exportCurrentFrame();
+    void exportAllFrames();
     void quit();
 
     //Tools
