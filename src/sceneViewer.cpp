@@ -174,7 +174,8 @@ void SceneViewer::setMatching(const bool matching)
     _matching = matching;
     if (_matching)
     {
-        uint frameCount = _scenePlayer->getFrameCount()/3;
+        uint povSize = _modelReader->getSceneObjects().getIdSize();
+        uint frameCount = _scenePlayer->getFrameCount() / povSize;
         _userInterface->hsCurrentFrame->setMaximum(frameCount);
         _scenePlayer->init(frameCount);
     }
@@ -271,34 +272,37 @@ void SceneViewer::drawGeometry(const uint povSize)
 
 void SceneViewer::mergeObjects()
 {
-    _userInterface->statusBar->showMessage("Merging matching clouds...");
-    uint povSize = _modelReader->getSceneObjects().getIdSize();
-
-    uint frameCount = _scenePlayer->getFrameCount() / povSize;
-    SceneObjects sceneObjects;
-    for (uint f = 0; f < frameCount; ++f)
+    if (_userInterface->actionMatch->isEnabled() && _matching)
     {
-        std::vector<Object> objects;
-        for (uint i = 0; i < povSize; ++i)
-            objects.push_back(_modelReader->getObject(f, i));
+        _userInterface->statusBar->showMessage("Merging matching clouds...");
+        uint povSize = _modelReader->getSceneObjects().getIdSize();
 
-        Object object;
-        if (povSize == 3)
-            object = _cloudTools->merge({objects.at(0), objects.at(1), objects.at(2)});
-        else
-            object = _cloudTools->merge({objects.at(0)});
+        uint frameCount = _scenePlayer->getFrameCount();// / povSize;
+        SceneObjects sceneObjects;
+        for (uint f = 0; f < frameCount; ++f)
+        {
+            std::vector<Object> objects;
+            for (uint i = 0; i < povSize; ++i)
+                objects.push_back(_modelReader->getObject(f, i));
 
-        //std::clog << "vertices: " << object.getVertexCount() << std::endl;
-        sceneObjects.addObject(object);
+            Object object;
+            if (povSize == 3)
+                object = _cloudTools->merge({objects.at(0), objects.at(1), objects.at(2)});
+            else
+                object = _cloudTools->merge({objects.at(0)});
+
+            //std::clog << "vertices: " << object.getVertexCount() << std::endl;
+            sceneObjects.addObject(object);
+        }
+
+        //std::clog << "objects: " << sceneObjects.getSceneSize() << std::endl;
+        //std::clog << "vertices: " << sceneObjects.getObject(0).getVertexCount() << std::endl;
+        _modelReader->setSceneObjects(sceneObjects);
+        frameCount = _modelReader->getSceneObjects().getSceneSize();
+        _scenePlayer->init(frameCount);
+        _userInterface->hsCurrentFrame->setMaximum(frameCount);
+        _userInterface->statusBar->showMessage("Merging done.", 3000);
     }
-
-    //std::clog << "objects: " << sceneObjects.getSceneSize() << std::endl;
-    //std::clog << "vertices: " << sceneObjects.getObject(0).getVertexCount() << std::endl;
-    _modelReader->setSceneObjects(sceneObjects);
-    frameCount = _modelReader->getSceneObjects().getSceneSize();
-    _scenePlayer->init(frameCount);
-    _userInterface->hsCurrentFrame->setMaximum(frameCount);
-    _userInterface->statusBar->showMessage("Merging done.", 3000);
 }
 
 void SceneViewer::draw()

@@ -156,9 +156,9 @@ void Mediator::importGeometry()
 
 void Mediator::merge()
 {
+    _sceneViewer->mergeObjects();
     setMatching(false);
     _userInterface.actionMatch->setEnabled(false);
-    _sceneViewer->mergeObjects();
 }
 
 void Mediator::setClipping(bool value)
