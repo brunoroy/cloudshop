@@ -38,6 +38,7 @@ public:
     std::shared_ptr<ScenePlayer> getScenePlayer();
     void mergeObjects();
     void resetTransforms();
+    void exportGeometry(const std::string filename, const uint currentFrame = -1);
 
 public slots:
     void setMatching(const bool matching);

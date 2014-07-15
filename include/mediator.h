@@ -9,14 +9,14 @@
 
 #include "sceneViewer.h"
 
-class CustomProgressBar : public QProgressBar
+/*class CustomProgressBar : public QProgressBar
 {
 public:
     CustomProgressBar() {}
     ~CustomProgressBar() {}
 
     void updateValue(const int value = 1) {this->setValue(this->value()+value);}
-};
+};*/
 
 class Mediator : public QObject
 {
@@ -32,6 +32,8 @@ public:
 public slots:
     //File
     void importGeometry();
+    void exportCurrentFrame();
+    void exportAllFrames();
     void quit();
 
     //Tools
@@ -54,7 +56,7 @@ private:
     Ui_TransformsDialog _transformsDialog;
     Ui_ClippingDialog _clippingDialog;
 
-    std::shared_ptr<CustomProgressBar> _progressBar;
+    //std::shared_ptr<CustomProgressBar> _progressBar;
 
     void toggleProgressBar(const int max = 100);
     void toggleScenePlayer();
