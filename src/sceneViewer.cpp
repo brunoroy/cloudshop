@@ -366,8 +366,8 @@ void SceneViewer::keyPressEvent(QKeyEvent* event)
     {
         case Qt::AltModifier:
         {
-            if (_matching)
-            {
+            /*if (_matching)
+            {*/
                 if (event->key() == Qt::Key_1 || event->key() == Qt::Key_2 || event->key() == Qt::Key_3)
                 {
                     _objectSelected = event->key()-49;
@@ -378,7 +378,7 @@ void SceneViewer::keyPressEvent(QKeyEvent* event)
                     _objectSelected = -1;
                     _userInterface->statusBar->showMessage(QString("No object selected."), 3000);
                 }
-                else if (event->key() == Qt::Key_R && _objectSelected != -1)
+                else if (event->key() == Qt::Key_R)
                 {
                     _transformsWindow->setWindowTitle(QString("Rotate"));
                     resetTransforms();
@@ -391,7 +391,7 @@ void SceneViewer::keyPressEvent(QKeyEvent* event)
                         _cloudTools->rotate(object, rotate);
                     }
                 }
-                else if (event->key() == Qt::Key_T && _objectSelected != -1)
+                else if (event->key() == Qt::Key_T)
                 {
                     _transformsWindow->setWindowTitle(QString("Translate"));
                     resetTransforms();
@@ -404,7 +404,7 @@ void SceneViewer::keyPressEvent(QKeyEvent* event)
                         _cloudTools->translate(object, translate);
                     }
                 }
-                else if (event->key() == Qt::Key_S && _objectSelected != -1)
+                else if (event->key() == Qt::Key_S)
                 {
                     _transformsWindow->setWindowTitle(QString("Scale"));
                     if (_transformsWindow->exec())
@@ -416,7 +416,7 @@ void SceneViewer::keyPressEvent(QKeyEvent* event)
                         _cloudTools->scale(object, scale);
                     }
                 }
-            }
+            //}
         }
         break;
         case Qt::NoModifier:
