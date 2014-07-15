@@ -4,15 +4,17 @@ TARGET = cloudshop
 TEMPLATE = app
 
 HEADERS += \
-    include/*.h
+    surface/include/*.h \
+    tools/include/*.h
 
 SOURCES += \
-    src/*.cpp
+    surface/src/*.cpp \
+    tools/src/*.cpp
 
 FORMS += \
-    gui/*.ui
+    tools/gui/*.ui
 
-INCLUDEPATH += include
+INCLUDEPATH += tools/include surface/include
 
 LIBS += -lQGLViewer -lGL -lGLU -lGLEW
 

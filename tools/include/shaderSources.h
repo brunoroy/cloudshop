@@ -13,15 +13,24 @@ struct ShaderSources
 
         layout(location = 0) in vec3 position;
         layout(location = 1) in vec3 color;
+        layout(location = 2) in vec3 normal;
+
+        uniform mat4 pmvMatrix;
+        uniform mat4 objectMatrix;
+        uniform mat4 mvMatrix;
+
         uniform float alpha;
-        uniform mat4 matrix;
-        uniform mat4 transforms;
         out vec4 vertexColor;
+        smooth out vec3 smoothNormal;
 
         void main()
         {
             vertexColor = vec4(color, alpha);
-            gl_Position =  matrix * transforms * vec4(position, 1.0);
+            gl_Position =  pmvMatrix * objectMatrix * vec4(position, 1.0);
+
+            mat4 normalMatrix = transpose(inverse(mvMatrix));
+            vec4 result = normalMatrix * vec4(normal, 0.0);
+            smoothNormal = result.xyz;
         }
     )"};
 

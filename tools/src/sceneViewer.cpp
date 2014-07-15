@@ -9,12 +9,15 @@
 //#include <glm/gtx/quaternion.hpp>
 
 #include "timer.h"
+#include "surfaceReconstruction.h"
 
 SceneViewer::SceneViewer(Ui_MainWindow *userInterface, Ui_TransformsDialog *transformsDialog, Ui_ClippingDialog *clippingDialog):
     _matching(false),
     _shapeClipping(false),
     _merge(false),
-    _objectSelected(-1)
+    _objectSelected(-1),
+    _pointSize(1.0f),
+    _viewMode(0)
 {
     _userInterface = userInterface;
     _transformsDialog = transformsDialog;
@@ -63,6 +66,9 @@ void SceneViewer::init()
 
     glGenBuffers(1, &_colorBuffer);
     glBindBuffer(GL_ARRAY_BUFFER, _colorBuffer);
+
+    glGenBuffers(1, &_normalBuffer);
+    glBindBuffer(GL_ARRAY_BUFFER, _normalBuffer);
 
     loadShaders();
 }
@@ -142,9 +148,10 @@ void SceneViewer::loadShaders()
         std::cout << &programErrorMessage[0] << std::endl;
     }
 
-    _matrixID = glGetUniformLocation(_programID, "matrix");
+    _pmvMatrixID = glGetUniformLocation(_programID, "pmvMatrix");
     _alphaID = glGetUniformLocation(_programID, "alpha");
-    _transformsID = glGetUniformLocation(_programID, "transforms");
+    _objectMatrixID = glGetUniformLocation(_programID, "objectMatrix");
+    _mvMatrixID = glGetUniformLocation(_programID, "mvMatrix");
 
     glDeleteShader(_shaderID[0]);
     glDeleteShader(_shaderID[1]);
@@ -225,20 +232,34 @@ void SceneViewer::drawGeometry(const uint povSize)
         Object object = _modelReader->getObject(_scenePlayer->getCurrentFrame(), i);
 
         glBindBuffer(GL_ARRAY_BUFFER, _vertexBuffer);
-        glBufferData(GL_ARRAY_BUFFER, object.getVertexCount() * 3 * sizeof(GLfloat), &object.getPositions().at(0), GL_STREAM_DRAW);
+        if (_viewMode == MODE_CLOUD)
+            glBufferData(GL_ARRAY_BUFFER, object.getVertexCount() * 3 * sizeof(GLfloat), &object.getPositions().at(0), GL_STREAM_DRAW);
+        else
+            glBufferData(GL_ARRAY_BUFFER, object.getMeshVertexCount() * 3 * sizeof(GLfloat), &object.getMeshPositions().at(0), GL_STREAM_DRAW);
 
         glBindBuffer(GL_ARRAY_BUFFER, _colorBuffer);
-        glBufferData(GL_ARRAY_BUFFER, object.getVertexCount() * 3 * sizeof(GLfloat), &object.getColors().at(0), GL_STREAM_DRAW);
+        if (_viewMode == MODE_CLOUD)
+            glBufferData(GL_ARRAY_BUFFER, object.getVertexCount() * 3 * sizeof(GLfloat), &object.getColors().at(0), GL_STREAM_DRAW);
+        else
+            glBufferData(GL_ARRAY_BUFFER, object.getMeshVertexCount() * 3 * sizeof(GLfloat), &object.getMeshColors().at(0), GL_STREAM_DRAW);
+
+        glBindBuffer(GL_ARRAY_BUFFER, _normalBuffer);
+        if (_viewMode == MODE_CLOUD)
+            glBufferData(GL_ARRAY_BUFFER, object.getVertexCount() * 3 * sizeof(GLfloat), &object.getNormals().at(0), GL_STREAM_DRAW);
+        else
+            glBufferData(GL_ARRAY_BUFFER, object.getMeshVertexCount() * 3 * sizeof(GLfloat), &object.getMeshNormals().at(0), GL_STREAM_DRAW);
 
         glUseProgram(_programID);
 
         GLdouble matrix[16];
         _sceneCamera->getModelViewProjectionMatrix(matrix);
-        //_sceneCamera->getProjectionMatrix(matrix);
-        _matrix = glm::make_mat4(matrix);
+        _pmvMatrix = glm::make_mat4(matrix);
+        _sceneCamera->getModelViewMatrix(matrix);
+        _mvMatrix = glm::make_mat4(matrix);
 
-        glUniformMatrix4fv(_matrixID, 1, GL_FALSE, &_matrix[0][0]);
-        glUniformMatrix4fv(_transformsID, 1, GL_FALSE, &object.getTransforms()[0][0]);
+        glUniformMatrix4fv(_pmvMatrixID, 1, GL_FALSE, &_pmvMatrix[0][0]);
+        glUniformMatrix4fv(_mvMatrixID, 1, GL_FALSE, &_mvMatrix[0][0]);
+        glUniformMatrix4fv(_objectMatrixID, 1, GL_FALSE, &object.getTransforms()[0][0]);
 
         if (_objectSelected == -1)
             glUniform1f(_alphaID, 1.0f);
@@ -250,6 +271,8 @@ void SceneViewer::drawGeometry(const uint povSize)
                 glUniform1f(_alphaID, 0.25f);
         }
 
+        glPointSize(_pointSize);
+
         glEnableVertexAttribArray(0);
         glBindBuffer(GL_ARRAY_BUFFER, _vertexBuffer);
         glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
@@ -258,9 +281,16 @@ void SceneViewer::drawGeometry(const uint povSize)
         glBindBuffer(GL_ARRAY_BUFFER, _colorBuffer);
         glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
 
+        glEnableVertexAttribArray(2);
+        glBindBuffer(GL_ARRAY_BUFFER, _normalBuffer);
+        glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
+
         //std::clog << "vertices: " << object.getVertexCount() << std::endl;
 
-        glDrawArrays(GL_POINTS, 0, object.getVertexCount());
+        if (_viewMode == MODE_CLOUD)
+            glDrawArrays(GL_POINTS, 0, object.getVertexCount());
+        else if (_viewMode == MODE_MESH)
+            glDrawArrays(GL_TRIANGLES, 0, object.getMeshVertexCount());
     }
 
     glDisableVertexAttribArray(0);
@@ -370,8 +400,8 @@ void SceneViewer::keyPressEvent(QKeyEvent* event)
     {
         case Qt::AltModifier:
         {
-            /*if (_matching)
-            {*/
+            if (_matching)
+            {
                 if (event->key() == Qt::Key_1 || event->key() == Qt::Key_2 || event->key() == Qt::Key_3)
                 {
                     _objectSelected = event->key()-49;
@@ -382,45 +412,46 @@ void SceneViewer::keyPressEvent(QKeyEvent* event)
                     _objectSelected = -1;
                     _userInterface->statusBar->showMessage(QString("No object selected."), 3000);
                 }
-                else if (event->key() == Qt::Key_R)
-                {
-                    _transformsWindow->setWindowTitle(QString("Rotate"));
-                    resetTransforms();
-                    if (_transformsWindow->exec())
-                    {
-                        glm::vec3 rotate(_transformsDialog->dsX->value(), _transformsDialog->dsY->value(), _transformsDialog->dsZ->value());
-                        uint currentFrame = _scenePlayer->getCurrentFrame();
-                        Object& object = _modelReader->getObject(currentFrame, _objectSelected);
+            }
 
-                        _cloudTools->rotate(object, rotate);
-                    }
-                }
-                else if (event->key() == Qt::Key_T)
+            if (event->key() == Qt::Key_R)
+            {
+                _transformsWindow->setWindowTitle(QString("Rotate"));
+                resetTransforms();
+                if (_transformsWindow->exec())
                 {
-                    _transformsWindow->setWindowTitle(QString("Translate"));
-                    resetTransforms();
-                    if (_transformsWindow->exec())
-                    {
-                        glm::vec3 translate(_transformsDialog->dsX->value(), _transformsDialog->dsY->value(), _transformsDialog->dsZ->value());
-                        uint currentFrame = _scenePlayer->getCurrentFrame();
-                        Object& object = _modelReader->getObject(currentFrame, _objectSelected);
+                    glm::vec3 rotate(_transformsDialog->dsX->value(), _transformsDialog->dsY->value(), _transformsDialog->dsZ->value());
+                    uint currentFrame = _scenePlayer->getCurrentFrame();
+                    Object& object = _modelReader->getObject(currentFrame, _objectSelected);
 
-                        _cloudTools->translate(object, translate);
-                    }
+                    _cloudTools->rotate(object, rotate);
                 }
-                else if (event->key() == Qt::Key_S)
+            }
+            else if (event->key() == Qt::Key_T)
+            {
+                _transformsWindow->setWindowTitle(QString("Translate"));
+                resetTransforms();
+                if (_transformsWindow->exec())
                 {
-                    _transformsWindow->setWindowTitle(QString("Scale"));
-                    if (_transformsWindow->exec())
-                    {
-                        glm::vec3 scale(_transformsDialog->dsX->value(), _transformsDialog->dsY->value(), _transformsDialog->dsZ->value());
-                        uint currentFrame = _scenePlayer->getCurrentFrame();
-                        Object& object = _modelReader->getObject(currentFrame, _objectSelected);
+                    glm::vec3 translate(_transformsDialog->dsX->value(), _transformsDialog->dsY->value(), _transformsDialog->dsZ->value());
+                    uint currentFrame = _scenePlayer->getCurrentFrame();
+                    Object& object = _modelReader->getObject(currentFrame, _objectSelected);
 
-                        _cloudTools->scale(object, scale);
-                    }
+                    _cloudTools->translate(object, translate);
                 }
-            //}
+            }
+            else if (event->key() == Qt::Key_S)
+            {
+                _transformsWindow->setWindowTitle(QString("Scale"));
+                if (_transformsWindow->exec())
+                {
+                    glm::vec3 scale(_transformsDialog->dsX->value(), _transformsDialog->dsY->value(), _transformsDialog->dsZ->value());
+                    uint currentFrame = _scenePlayer->getCurrentFrame();
+                    Object& object = _modelReader->getObject(currentFrame, _objectSelected);
+
+                    _cloudTools->scale(object, scale);
+                }
+            }
         }
         break;
         case Qt::NoModifier:
@@ -457,6 +488,18 @@ void SceneViewer::keyPressEvent(QKeyEvent* event)
                     _userInterface->hsCurrentFrame->setValue(_scenePlayer->getCurrentFrame()-1);
                 }
             }
+            else if (event->key() == Qt::Key_Equal)
+            {
+                if (_pointSize < 10.0f)
+                    _pointSize++;
+                //std::clog << "pointSize: " << _pointSize << std::endl;
+            }
+            else if (event->key() == Qt::Key_Minus)
+            {
+                if (_pointSize > 1.0f)
+                    _pointSize--;
+                //std::clog << "pointSize: " << _pointSize << std::endl;
+            }
         }
         break;
     }
@@ -479,4 +522,11 @@ void SceneViewer::exportGeometry(const std::string filename, const uint currentF
         _modelReader->exportPLY(filename, currentFrame);
     else
         _modelReader->exportFrames(filename, _userInterface->progressBar);
+}
+
+void SceneViewer::surfaceReconstruction()
+{
+    SurfaceReconstruction surfaceReconstruction;
+    surfaceReconstruction.reconstruct(_modelReader->getSceneObjects());
+    _viewMode = MODE_MESH;
 }

@@ -10,6 +10,9 @@
 #define PATH_PLAY_ICON "ico/play.ico"
 #define PATH_PAUSE_ICON "ico/pause.ico"
 
+#define MODE_CLOUD 0
+#define MODE_MESH 1
+
 typedef unsigned int uint;
 typedef unsigned long long ull;
 

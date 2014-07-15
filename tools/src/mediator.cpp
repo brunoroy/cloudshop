@@ -42,6 +42,11 @@ void Mediator::initSignalSlot()
     connect(_userInterface.actionMatch, SIGNAL(triggered(bool)), this, SLOT(setMatching(bool)));
     connect(_userInterface.actionMerge, SIGNAL(triggered()), this, SLOT(merge()));
     connect(_userInterface.actionShapeClipping, SIGNAL(triggered(bool)), this, SLOT(setClipping(bool)));
+    connect(_userInterface.actionSurfaceReconstruction, SIGNAL(triggered()), this, SLOT(surfaceReconstruction()));
+
+    //View
+    connect(_userInterface.actionModeCloud, SIGNAL(triggered()), this, SLOT(setViewModeCloud()));
+    connect(_userInterface.actionModeMesh, SIGNAL(triggered()), this, SLOT(setViewModeMesh()));
 
     //Help
     connect(_userInterface.actionAbout, SIGNAL(triggered()), this, SLOT(about()));
@@ -62,6 +67,11 @@ void Mediator::initUserInterface()
     _userInterface.eCurrentFrame->setText(QString::number(_userInterface.hsCurrentFrame->minimum()));
     _userInterface.bPlayPause->setIcon(QIcon(PATH_PLAY_ICON));
     _userInterface.widgetScenePlayer->hide();
+
+    _viewModeGroup = new QActionGroup(_mainWindow.get());
+    _viewModeGroup->addAction(_userInterface.actionModeCloud);
+    _viewModeGroup->addAction(_userInterface.actionModeMesh);
+    _userInterface.actionModeCloud->setChecked(true);
 }
 
 void Mediator::toggleProgressBar(const int max)
@@ -78,6 +88,16 @@ void Mediator::toggleProgressBar(const int max)
         _userInterface.progressBar->setValue(0);
         _userInterface.progressBar->setMaximum(100);
     }
+}
+
+void Mediator::setViewModeCloud()
+{
+    _sceneViewer->setViewMode(0);
+}
+
+void Mediator::setViewModeMesh()
+{
+    _sceneViewer->setViewMode(1);
 }
 
 void Mediator::toggleScenePlayer()
@@ -183,6 +203,15 @@ void Mediator::exportAllFrames()
         _sceneViewer->exportGeometry(exportFilename.toStdString());
         toggleProgressBar();
     }
+}
+
+void Mediator::surfaceReconstruction()
+{
+    //std::shared_ptr<SurfaceReconstruction> surfaceReconstruction;
+    //surfaceReconstruction.reset(new SurfaceReconstruction());
+
+    //uint currentFrame = _sceneViewer->getScenePlayer()->getCurrentFrame();
+    _sceneViewer->surfaceReconstruction();
 }
 
 void Mediator::about()

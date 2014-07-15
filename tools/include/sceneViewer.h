@@ -39,6 +39,9 @@ public:
     void mergeObjects();
     void resetTransforms();
     void exportGeometry(const std::string filename, const uint currentFrame = -1);
+    void surfaceReconstruction();
+
+    void setViewMode(uint mode) {_viewMode = mode;}
 
 public slots:
     void setMatching(const bool matching);
@@ -65,15 +68,21 @@ private:
     GLuint _vertexArrayID;
     GLuint _vertexBuffer;
     GLuint _colorBuffer;
+    GLuint _normalBuffer;
     GLuint _shaderID[2];
+
     GLuint _programID;
-    GLuint _matrixID;
+    GLuint _pmvMatrixID;
     GLuint _alphaID;
-    GLuint _transformsID;
-    glm::mat4 _matrix = glm::mat4(1.0f);
+    GLuint _objectMatrixID;
+    GLuint _mvMatrixID;
+
+    glm::mat4 _pmvMatrix = glm::mat4(1.0f);
+    glm::mat4 _mvMatrix = glm::mat4(1.0f);
 
     qglviewer::Vec _cameraOrigin;
     qglviewer::Vec _cameraDirection;
+    float _pointSize;
 
     Ui_MainWindow *_userInterface;
     Ui_TransformsDialog *_transformsDialog;
@@ -90,6 +99,7 @@ private:
     bool _shapeClipping;
     bool _merge;
     int _objectSelected;
+    uint _viewMode;
 };
 
 #endif // SCENEVIEWER_H

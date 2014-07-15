@@ -162,10 +162,32 @@
      <addaction name="actionShapeClipping"/>
      <addaction name="actionMerge"/>
     </widget>
+    <widget class="QMenu" name="menuSurface">
+     <property name="title">
+      <string>Surface</string>
+     </property>
+     <addaction name="actionSurfaceReconstruction"/>
+    </widget>
     <addaction name="menuCloud"/>
+    <addaction name="menuSurface"/>
+   </widget>
+   <widget class="QMenu" name="menuView">
+    <property name="title">
+     <string>View</string>
+    </property>
+    <widget class="QMenu" name="menuMode">
+     <property name="title">
+      <string>Mode</string>
+     </property>
+     <addaction name="actionModeCloud"/>
+     <addaction name="actionModeMesh"/>
+    </widget>
+    <addaction name="menuMode"/>
+    <addaction name="actionCamera"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuTools"/>
+   <addaction name="menuView"/>
    <addaction name="menuAbout"/>
   </widget>
   <action name="actionQuit">
@@ -325,6 +347,35 @@
   <action name="actionExportAllFrames">
    <property name="text">
     <string>All frames</string>
+   </property>
+  </action>
+  <action name="actionSurfaceReconstruction">
+   <property name="text">
+    <string>Reconstruction</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+S</string>
+   </property>
+  </action>
+  <action name="actionModeCloud">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Cloud</string>
+   </property>
+  </action>
+  <action name="actionModeMesh">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Mesh</string>
+   </property>
+  </action>
+  <action name="actionCamera">
+   <property name="text">
+    <string>Camera</string>
    </property>
   </action>
  </widget>

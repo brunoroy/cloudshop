@@ -40,6 +40,11 @@ public slots:
     void setMatching(bool value);
     void merge();
     void setClipping(bool value);
+    void surfaceReconstruction();
+
+    //View
+    void setViewModeCloud();
+    void setViewModeMesh();
 
     //Help
     void about();
@@ -56,6 +61,7 @@ private:
     Ui_TransformsDialog _transformsDialog;
     Ui_ClippingDialog _clippingDialog;
 
+    QActionGroup* _viewModeGroup;
     //std::shared_ptr<CustomProgressBar> _progressBar;
 
     void toggleProgressBar(const int max = 100);

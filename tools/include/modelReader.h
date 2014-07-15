@@ -60,6 +60,12 @@ public:
         return _vertices.at(index);
         //return Vertex(_positions.at(index), _colors.at(index), _normals.at(index));
     }
+    Vertex& getMeshVertex(const uint index)
+    {
+        return _meshVertices.at(index);
+        //return Vertex(_positions.at(index), _colors.at(index), _normals.at(index));
+    }
+
     void addVertex(Vertex vertex)
     {
         _positions.push_back(vertex.position);
@@ -69,11 +75,15 @@ public:
         _vertexCount++;
     }
     uint getVertexCount() {return _vertexCount;}
+    uint getMeshVertexCount() {return _meshPositions.size();}
 
-    std::vector<glm::vec3> getPositions(){return _positions;}
+    std::vector<glm::vec3> getPositions() {return _positions;}
     std::vector<glm::vec3> getColors() {return _colors;}
     std::vector<glm::vec3> getNormals() {return _normals;}
     std::vector<Vertex> getVertices() {return _vertices;}
+    std::vector<glm::vec3> getMeshPositions() {return _meshPositions;}
+    std::vector<glm::vec3> getMeshColors() {return _meshColors;}
+    std::vector<glm::vec3> getMeshNormals() {return _meshNormals;}
     uint getId() {return _id;}
     ull getTimestamp() {return _ts;}
     glm::mat4 getTransforms() {return _transforms;}
@@ -146,7 +156,20 @@ public:
         _ts = object.getTimestamp();
     }
 
+    void addMeshVertex(Vertex vertex)
+    {
+        _meshPositions.push_back(vertex.position);
+        _meshColors.push_back(vertex.color);
+        _meshNormals.push_back(vertex.normal);
+        _meshVertices.push_back(vertex);
+    }
+
 private:
+    std::vector<Vertex> _meshVertices;
+    std::vector<glm::vec3> _meshPositions;
+    std::vector<glm::vec3> _meshColors;
+    std::vector<glm::vec3> _meshNormals;
+
     std::vector<Vertex> _vertices;
     std::vector<glm::vec3> _positions;
     std::vector<glm::vec3> _colors;
@@ -216,7 +239,7 @@ public:
     bool exportFrames(const std::string filename, QProgressBar* progressBar);
 
     bool isSceneEmpty() {return (_sceneObjects.getSceneSize() == 0);}
-    SceneObjects getSceneObjects() {return _sceneObjects;}
+    SceneObjects& getSceneObjects() {return _sceneObjects;}
     Object& getObject(const uint frame, const uint id = 0) {return _sceneObjects.getObject(frame, id);}
     void resetScene() {_sceneObjects.reset();}
     void addObject(Object object) {_sceneObjects.addObject(object);}
