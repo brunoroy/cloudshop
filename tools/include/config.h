@@ -6,6 +6,7 @@
 #define PLY_END_HEADER "end_header"
 #define PCD_FILE_EXTENSION "PCD"
 #define PLY_FILE_EXTENSION "PLY"
+#define PNG_FILE_EXTENSION "PNG"
 
 #define PATH_PLAY_ICON "ico/play.ico"
 #define PATH_PAUSE_ICON "ico/pause.ico"

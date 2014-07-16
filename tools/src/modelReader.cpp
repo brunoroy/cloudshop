@@ -28,6 +28,14 @@ bool ModelReader::importModel(std::string path)
     return false;
 }
 
+bool ModelReader::importTexture(std::string path)
+{
+    if (isFormatPNG(path))
+        return importPNG(path);
+
+    return false;
+}
+
 bool ModelReader::importPCD(const std::string filename)
 {
     return false;
@@ -142,6 +150,78 @@ bool ModelReader::importPLY(const std::string filename)
     }
 
     return false;
+}
+
+bool ModelReader::importPNG(const std::string filename)
+{
+    bool test = loadImagePNG(filename);
+}
+
+bool ModelReader::loadImagePNG(const std::string filename)
+{
+    png_structp png_ptr;
+    png_infop info_ptr;
+    unsigned int sig_read = 0;
+    int color_type, interlace_type;
+    FILE *fp;
+
+    if ((fp = fopen(filename.c_str(), "rb")) == NULL)
+        return false;
+
+    png_ptr = png_create_read_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
+
+    if (png_ptr == NULL) {
+        fclose(fp);
+        return false;
+    }
+
+    info_ptr = png_create_info_struct(png_ptr);
+    if (info_ptr == NULL)
+    {
+        fclose(fp);
+        png_destroy_read_struct(&png_ptr, NULL, NULL);
+        return false;
+    }
+
+    if (setjmp(png_jmpbuf(png_ptr)))
+    {
+        png_destroy_read_struct(&png_ptr, &info_ptr, NULL);
+        fclose(fp);
+        return false;
+    }
+
+    png_init_io(png_ptr, fp);
+    png_set_sig_bytes(png_ptr, sig_read);
+    png_read_png(png_ptr, info_ptr, PNG_TRANSFORM_STRIP_16 | PNG_TRANSFORM_PACKING | PNG_TRANSFORM_EXPAND, NULL);
+
+    png_uint_32 width, height;
+    int bit_depth;
+    png_get_IHDR(png_ptr, info_ptr, &width, &height, &bit_depth, &color_type,
+                 &interlace_type, NULL, NULL);
+
+    unsigned int row_bytes = png_get_rowbytes(png_ptr, info_ptr);
+    _texture = (unsigned char*) malloc(row_bytes * height);
+
+    png_bytepp row_pointers = png_get_rows(png_ptr, info_ptr);
+
+    for (int i = 0; i < height; i++)
+        memcpy(_texture+(row_bytes * (height-1-i)), row_pointers[i], row_bytes);
+
+    std::clog << "image [" << width << " x " << height << "]" << std::endl;
+
+    png_destroy_read_struct(&png_ptr, &info_ptr, NULL);
+    fclose(fp);
+
+    return true;
+}
+
+bool ModelReader::isFormatPNG(const std::string filename)
+{
+    std::string fileExtension = getFileExtension(filename);
+    if (fileExtension.compare(PNG_FILE_EXTENSION) == 0)
+        return true;
+    else
+        return false;
 }
 
 bool ModelReader::isFormatPCD(const std::string filename)

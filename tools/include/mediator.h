@@ -32,6 +32,7 @@ public:
 public slots:
     //File
     void importGeometry();
+    void importTexture();
     void exportCurrentFrame();
     void exportAllFrames();
     void quit();
@@ -41,6 +42,7 @@ public slots:
     void merge();
     void setClipping(bool value);
     void surfaceReconstruction();
+    void showTexturePanel(bool value);
 
     //View
     void setViewModeCloud();

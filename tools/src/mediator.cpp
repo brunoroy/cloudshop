@@ -34,6 +34,7 @@ void Mediator::initSignalSlot()
 {
     //File
     connect(_userInterface.actionImportGeometry, SIGNAL(triggered()), this, SLOT(importGeometry()));
+    connect(_userInterface.actionImportTexture, SIGNAL(triggered()), this, SLOT(importTexture()));
     connect(_userInterface.actionExportCurrentFrame, SIGNAL(triggered()), this, SLOT(exportCurrentFrame()));
     connect(_userInterface.actionExportAllFrames, SIGNAL(triggered()), this, SLOT(exportAllFrames()));
     connect(_userInterface.actionQuit, SIGNAL(triggered()), this, SLOT(quit()));
@@ -43,6 +44,7 @@ void Mediator::initSignalSlot()
     connect(_userInterface.actionMerge, SIGNAL(triggered()), this, SLOT(merge()));
     connect(_userInterface.actionShapeClipping, SIGNAL(triggered(bool)), this, SLOT(setClipping(bool)));
     connect(_userInterface.actionSurfaceReconstruction, SIGNAL(triggered()), this, SLOT(surfaceReconstruction()));
+    connect(_userInterface.actionTexturePanel, SIGNAL(triggered(bool)), this, SLOT(showTexturePanel(bool)));
 
     //View
     connect(_userInterface.actionModeCloud, SIGNAL(triggered()), this, SLOT(setViewModeCloud()));
@@ -72,6 +74,8 @@ void Mediator::initUserInterface()
     _viewModeGroup->addAction(_userInterface.actionModeCloud);
     _viewModeGroup->addAction(_userInterface.actionModeMesh);
     _userInterface.actionModeCloud->setChecked(true);
+
+    _userInterface.dockWidgetTexture->hide();
 }
 
 void Mediator::toggleProgressBar(const int max)
@@ -174,6 +178,35 @@ void Mediator::importGeometry()
     }
 }
 
+void Mediator::importTexture()
+{
+    QString textureFolder = QFileDialog::getExistingDirectory(_mainWindow.get(), "Browse texture folder", "tex/");
+    if (!textureFolder.isEmpty())
+    {
+        QDir* textureFolderContent = new QDir(textureFolder);
+        textureFolderContent->setNameFilters(QStringList(QString("*").append(PNG_FILE_EXTENSION)));
+        QStringList textureFiles = textureFolderContent->entryList(QDir::Files);
+
+        if (!textureFiles.isEmpty())
+        {
+            toggleProgressBar(textureFiles.size());
+            for (uint i = 0; i < textureFiles.size(); ++i)
+            {
+                std::string path(textureFolder.toStdString());
+                path.append("/").append(textureFiles.at(i).toStdString());
+                _sceneViewer->importTexture(path);
+                //_sceneViewer->importGeometry(path);
+                _userInterface.progressBar->setValue(_userInterface.progressBar->value()+1);
+            }
+            toggleProgressBar();
+            QString message = QString("%1 files loaded.").arg(QString::number(textureFiles.size()));
+            _userInterface.statusBar->showMessage(message, 3000);
+        }
+        else
+            std::clog << textureFolder.toStdString() << " is empty." << std::endl;
+    }
+}
+
 void Mediator::merge()
 {
     _sceneViewer->mergeObjects();
@@ -205,6 +238,11 @@ void Mediator::exportAllFrames()
     }
 }
 
+void Mediator::showTexturePanel(bool value)
+{
+    _userInterface.dockWidgetTexture->setVisible(value);
+}
+
 void Mediator::surfaceReconstruction()
 {
     //std::shared_ptr<SurfaceReconstruction> surfaceReconstruction;
@@ -212,6 +250,8 @@ void Mediator::surfaceReconstruction()
 
     //uint currentFrame = _sceneViewer->getScenePlayer()->getCurrentFrame();
     _sceneViewer->surfaceReconstruction();
+    _userInterface.actionModeMesh->setEnabled(true);
+    _userInterface.actionModeMesh->setChecked(true);
 }
 
 void Mediator::about()

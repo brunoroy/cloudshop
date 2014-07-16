@@ -8,7 +8,16 @@
 #include <algorithm>
 #include <mutex>
 
+#include <GL/glew.h>
+#include <GL/gl.h>
+#include <QGLViewer/qglviewer.h>
+
 #include <glm/glm.hpp>
+#include <glm/gtc/type_ptr.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+
+#include <libpng/png.h>
+
 #include <QProgressBar>
 
 #include "config.h"
@@ -165,6 +174,8 @@ public:
     }
 
 private:
+    GLubyte** _texture;
+
     std::vector<Vertex> _meshVertices;
     std::vector<glm::vec3> _meshPositions;
     std::vector<glm::vec3> _meshColors;
@@ -230,10 +241,14 @@ public:
 
     bool importPCD(const std::string filename);
     bool importPLY(const std::string filename);
+    bool importPNG(const std::string filename);
     bool isFormatPCD(const std::string filename);
     bool isFormatPLY(const std::string filename);
+    bool isFormatPNG(const std::string filename);
     std::string getFileExtension(const std::string filename);
     bool importModel(std::string path);
+    bool importTexture(std::string path);
+    bool loadImagePNG(const std::string filename);
 
     bool exportPLY(const std::string filename, const uint frame);
     bool exportFrames(const std::string filename, QProgressBar* progressBar);
@@ -257,6 +272,7 @@ private:
 
     bool _hasPosition, _hasColor, _hasNormal;
     SceneObjects _sceneObjects;
+    GLubyte* _texture;
 };
 
 #endif // MODELREADER_H

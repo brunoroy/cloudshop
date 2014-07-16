@@ -14,13 +14,6 @@
 #include "ui_clippingDialog.h"
 #include "config.h"
 
-#include <glm/glm.hpp>
-#include <glm/gtc/type_ptr.hpp>
-#include <glm/gtc/matrix_transform.hpp>
-
-#include <GL/glew.h>
-#include <QGLViewer/qglviewer.h>
-
 #include <thread>
 
 using namespace qglviewer;
@@ -34,6 +27,7 @@ public:
     void drawGeometry(const uint povSize = 1);
     bool isReady();
     void importGeometry(const std::string filename);
+    void importTexture(const std::string filename);
     void initScenePlayer(const uint frameCount);
     std::shared_ptr<ScenePlayer> getScenePlayer();
     void mergeObjects();

@@ -464,6 +464,9 @@ void SceneViewer::keyPressEvent(QKeyEvent* event)
         {
             if (event->key() == Qt::Key_R)
             {
+                _viewMode = MODE_CLOUD;
+                _userInterface->actionModeCloud->setChecked(true);
+                _userInterface->actionModeMesh->setEnabled(false);
                 _userInterface->actionMatch->setEnabled(true);
                 _userInterface->actionMatch->setChecked(false);
                 //_userInterface->actionShapeClipping->setChecked(false);
@@ -525,6 +528,14 @@ bool SceneViewer::isReady()
 void SceneViewer::importGeometry(const std::string filename)
 {
     _modelReader->importModel(filename);
+}
+
+void SceneViewer::importTexture(const std::string filename)
+{
+    if (_modelReader->importTexture(filename))
+        std::clog << "file loaded." << std::endl;
+    else
+        std::clog << "file not loaded." << std::endl;
 }
 
 void SceneViewer::exportGeometry(const std::string filename, const uint currentFrame)

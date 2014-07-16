@@ -16,7 +16,7 @@ FORMS += \
 
 INCLUDEPATH += tools/include surface/include
 
-LIBS += -lQGLViewer -lGL -lGLU -lGLEW
+LIBS += -lQGLViewer -lGL -lGLU -lGLEW -lpng
 
 OBJECTS_DIR = build
 MOC_DIR = build
