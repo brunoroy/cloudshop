@@ -237,6 +237,18 @@ void SceneViewer::drawGeometry(const uint povSize)
     {
         Object object = _modelReader->getObject(_scenePlayer->getCurrentFrame(), i);
 
+        if (_viewMode == MODE_TEXTURED)
+        {
+            /*GLint uniformTex0 = glGetUniformLocation(_programID, "tex0");
+            glActiveTexture(GL_TEXTURE0);
+            glBindTexture(GL_TEXTURE_2D, object.getTexture().getTextureId());
+            glUniform1i(uniformTex0, 0);*/
+            glActiveTexture(GL_TEXTURE0);
+            GLint textureId = glGetUniformLocation(_programID, "textureColor");
+            glUniform1i(textureId, 0);
+            glBindTexture(GL_TEXTURE_2D, object.getTexture().getTextureId());
+        }
+
         glBindBuffer(GL_ARRAY_BUFFER, _vertexBuffer);
         if (_viewMode == MODE_CLOUD)
             glBufferData(GL_ARRAY_BUFFER, object.getVertexCount() * 3 * sizeof(GLfloat), &object.getPositions().at(0), GL_STREAM_DRAW);
@@ -467,6 +479,7 @@ void SceneViewer::keyPressEvent(QKeyEvent* event)
                 _viewMode = MODE_CLOUD;
                 _userInterface->actionModeCloud->setChecked(true);
                 _userInterface->actionModeMesh->setEnabled(false);
+                _userInterface->actionModeTextured->setEnabled(false);
                 _userInterface->actionMatch->setEnabled(true);
                 _userInterface->actionMatch->setChecked(false);
                 //_userInterface->actionShapeClipping->setChecked(false);
@@ -532,10 +545,17 @@ void SceneViewer::importGeometry(const std::string filename)
 
 void SceneViewer::importTexture(const std::string filename)
 {
-    if (_modelReader->importTexture(filename))
+    _modelReader->importTexture(filename);
+
+    /*if (_modelReader->importTexture(filename))
         std::clog << "file loaded." << std::endl;
     else
-        std::clog << "file not loaded." << std::endl;
+        std::clog << "file not loaded." << std::endl;*/
+}
+
+void SceneViewer::assignObjectTexture()
+{
+    _modelReader->assignObjectTexture();
 }
 
 void SceneViewer::exportGeometry(const std::string filename, const uint currentFrame)

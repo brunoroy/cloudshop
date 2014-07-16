@@ -47,6 +47,7 @@ public slots:
     //View
     void setViewModeCloud();
     void setViewModeMesh();
+    void setViewModeTextured();
 
     //Help
     void about();

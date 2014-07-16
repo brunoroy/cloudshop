@@ -31,6 +31,8 @@ struct ShaderSources
             mat4 normalMatrix = transpose(inverse(mvMatrix));
             vec4 result = normalMatrix * vec4(normal, 0.0);
             smoothNormal = result.xyz;
+
+            gl_TexCoord[0] = gl_MultiTexCoord0;
         }
     )"};
 
@@ -43,9 +45,12 @@ struct ShaderSources
         in vec4 vertexColor;
         out vec4 fragmentColor;
 
+        uniform sampler2D textureColor;
+
         void main()
         {
-            fragmentColor = vertexColor;
+            //fragmentColor = vertexColor;
+            fragmentColor = texture2D(textureColor, gl_TexCoord[0].st);
         }
     )"};
 };

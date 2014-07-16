@@ -13,6 +13,7 @@
 
 #define MODE_CLOUD 0
 #define MODE_MESH 1
+#define MODE_TEXTURED 2
 
 typedef unsigned int uint;
 typedef unsigned long long ull;

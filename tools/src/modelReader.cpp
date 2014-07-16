@@ -19,7 +19,7 @@ ModelReader::~ModelReader()
 }
 
 bool ModelReader::importModel(std::string path)
-{
+{    
     if (isFormatPCD(path))
         return importPCD(path);
     else if (isFormatPLY(path))
@@ -154,7 +154,7 @@ bool ModelReader::importPLY(const std::string filename)
 
 bool ModelReader::importPNG(const std::string filename)
 {
-    bool test = loadImagePNG(filename);
+    return loadImagePNG(filename);
 }
 
 bool ModelReader::loadImagePNG(const std::string filename)
@@ -200,19 +200,52 @@ bool ModelReader::loadImagePNG(const std::string filename)
                  &interlace_type, NULL, NULL);
 
     unsigned int row_bytes = png_get_rowbytes(png_ptr, info_ptr);
-    _texture = (unsigned char*) malloc(row_bytes * height);
+    GLubyte* image = (unsigned char*) malloc(row_bytes * height);
 
     png_bytepp row_pointers = png_get_rows(png_ptr, info_ptr);
 
     for (int i = 0; i < height; i++)
-        memcpy(_texture+(row_bytes * (height-1-i)), row_pointers[i], row_bytes);
+        memcpy(image+(row_bytes * (height-1-i)), row_pointers[i], row_bytes);
 
-    std::clog << "image [" << width << " x " << height << "]" << std::endl;
+    //std::clog << "image [" << width << " x " << height << "]" << std::endl;
 
     png_destroy_read_struct(&png_ptr, &info_ptr, NULL);
     fclose(fp);
 
+    int textureId = -1;
+    ull timestamp;
+    if (filename.find("cam") != std::string::npos)
+        textureId = std::stoi(filename.substr(filename.find("cam")+3, 1));
+    if (filename.find("_") != std::string::npos)
+    {
+        try
+        {
+            timestamp = std::stoull(filename.substr(filename.find("_")+1, filename.length()-5));
+        }
+        catch (const std::exception& e)
+        {
+            timestamp = _sceneTextures.getTextureSize();
+        }
+    }
+
+    Texture texture(image, filename, textureId, timestamp);
+    _sceneTextures.addTexture(texture);
+    //std::clog << "textures: " << _sceneTextures.getTextureSize() << std::endl;
+
     return true;
+}
+
+void ModelReader::assignObjectTexture()
+{
+    if (_sceneObjects.getSceneSize() == _sceneTextures.getTextureSize())
+    {
+        for (uint i = 0; i < _sceneObjects.getSceneSize(); ++i)
+        {
+            _sceneObjects.getObject(i).setTexture(_sceneTextures.getTexture(i));
+        }
+    }
+    else
+        std::clog << "texture set does not match object set." << std::endl;
 }
 
 bool ModelReader::isFormatPNG(const std::string filename)

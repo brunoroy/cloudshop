@@ -28,6 +28,7 @@ public:
     bool isReady();
     void importGeometry(const std::string filename);
     void importTexture(const std::string filename);
+    void assignObjectTexture();
     void initScenePlayer(const uint frameCount);
     std::shared_ptr<ScenePlayer> getScenePlayer();
     void mergeObjects();

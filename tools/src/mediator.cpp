@@ -49,6 +49,7 @@ void Mediator::initSignalSlot()
     //View
     connect(_userInterface.actionModeCloud, SIGNAL(triggered()), this, SLOT(setViewModeCloud()));
     connect(_userInterface.actionModeMesh, SIGNAL(triggered()), this, SLOT(setViewModeMesh()));
+    connect(_userInterface.actionModeTextured, SIGNAL(triggered()), this, SLOT(setViewModeTextured()));
 
     //Help
     connect(_userInterface.actionAbout, SIGNAL(triggered()), this, SLOT(about()));
@@ -73,6 +74,7 @@ void Mediator::initUserInterface()
     _viewModeGroup = new QActionGroup(_mainWindow.get());
     _viewModeGroup->addAction(_userInterface.actionModeCloud);
     _viewModeGroup->addAction(_userInterface.actionModeMesh);
+    _viewModeGroup->addAction(_userInterface.actionModeTextured);
     _userInterface.actionModeCloud->setChecked(true);
 
     _userInterface.dockWidgetTexture->hide();
@@ -96,12 +98,17 @@ void Mediator::toggleProgressBar(const int max)
 
 void Mediator::setViewModeCloud()
 {
-    _sceneViewer->setViewMode(0);
+    _sceneViewer->setViewMode(MODE_CLOUD);
 }
 
 void Mediator::setViewModeMesh()
 {
-    _sceneViewer->setViewMode(1);
+    _sceneViewer->setViewMode(MODE_MESH);
+}
+
+void Mediator::setViewModeTextured()
+{
+    _sceneViewer->setViewMode(MODE_TEXTURED);
 }
 
 void Mediator::toggleScenePlayer()
@@ -198,6 +205,7 @@ void Mediator::importTexture()
                 //_sceneViewer->importGeometry(path);
                 _userInterface.progressBar->setValue(_userInterface.progressBar->value()+1);
             }
+            _sceneViewer->assignObjectTexture();
             toggleProgressBar();
             QString message = QString("%1 files loaded.").arg(QString::number(textureFiles.size()));
             _userInterface.statusBar->showMessage(message, 3000);
@@ -251,6 +259,7 @@ void Mediator::surfaceReconstruction()
     //uint currentFrame = _sceneViewer->getScenePlayer()->getCurrentFrame();
     _sceneViewer->surfaceReconstruction();
     _userInterface.actionModeMesh->setEnabled(true);
+    _userInterface.actionModeTextured->setEnabled(true);
     _userInterface.actionModeMesh->setChecked(true);
 }
 

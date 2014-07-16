@@ -189,6 +189,7 @@
      </property>
      <addaction name="actionModeCloud"/>
      <addaction name="actionModeMesh"/>
+     <addaction name="actionModeTextured"/>
     </widget>
     <addaction name="menuMode"/>
     <addaction name="actionCamera"/>
@@ -430,6 +431,17 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+Alt+I</string>
+   </property>
+  </action>
+  <action name="actionModeTextured">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Textured</string>
    </property>
   </action>
  </widget>

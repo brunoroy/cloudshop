@@ -37,6 +37,69 @@ struct Calibration
     std::vector<Shape> shapes;
 };
 
+class Texture
+{
+public:
+    Texture() {}
+    Texture(GLubyte* image, const std::string name, const int id = -1, const ull ts = 0): _image(image), _name(name)
+    {
+        if (id == -1)
+            _id = std::rand();
+        else
+            _id = id;
+        _ts = ts;
+    }
+    ~Texture() {}
+
+    uint getId() {return _id;}
+    ull getTimestamp() {return _ts;}
+    std::string getName() {return _name;}
+    GLubyte* getImage() {return _image;}
+    GLuint getTextureId() {return _textureId;}
+
+    void setImage(GLubyte* image) {_image = image;}
+    void setName(const std::string name) {_name = name;}
+    void setId(const uint id) {_id = id;}
+    void setTimestamp(const ull ts) {_ts = ts;}
+
+    static bool sortIdTimestamp(const Texture& t1, const Texture& t2)
+    {
+        if (t1._id < t2._id)
+            return true;
+        if (t1._id > t2._id)
+            return false;
+
+        if (t1._ts < t2._ts)
+            return true;
+
+        return false;
+    }
+
+private:
+    GLuint loadTexture()
+    {
+        glGenTextures(1, &_textureId);
+        glBindTexture( GL_TEXTURE_2D, _textureId);
+        glTexEnvf( GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE );
+
+        glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+        glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT );
+        glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT );
+
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 640, 480, 0, GL_RGB, GL_UNSIGNED_BYTE, _image);
+
+        return _textureId;
+    }
+
+    GLuint _textureId;
+    GLubyte* _image;
+    std::string _name;
+    uint _id;
+    ull _ts;
+};
+
 struct Vertex
 {
     Vertex() {}
@@ -83,6 +146,10 @@ public:
         _vertices.push_back(vertex);
         _vertexCount++;
     }
+
+    void setTexture(Texture texture) {_texture = texture;}
+    Texture getTexture() {return _texture;}
+
     uint getVertexCount() {return _vertexCount;}
     uint getMeshVertexCount() {return _meshPositions.size();}
 
@@ -174,7 +241,7 @@ public:
     }
 
 private:
-    GLubyte** _texture;
+    Texture _texture;
 
     std::vector<Vertex> _meshVertices;
     std::vector<glm::vec3> _meshPositions;
@@ -191,6 +258,31 @@ private:
     uint _vertexCount;
     glm::mat4 _transforms = glm::mat4(1.0f);
     bool _clipped;
+};
+
+class SceneTextures
+{
+public:
+    SceneTextures() {}
+    ~SceneTextures() {}
+
+    void addTexture(Texture texture)
+    {
+        _textures.push_back(texture);
+        std::sort(_textures.begin(), _textures.end(), Texture::sortIdTimestamp);
+
+        uint lastId = _textures.at(_textures.size()-1).getId();
+        if (lastId > _idSize)
+            _idSize = lastId;
+    }
+
+    Texture getTexture(const uint index) {return _textures.at(index);}
+
+    uint getTextureSize() {return _textures.size();}
+
+private:
+    std::vector<Texture> _textures;
+    uint _idSize;
 };
 
 class SceneObjects
@@ -213,11 +305,7 @@ public:
     {
         uint stride = _objects.size()/getIdSize();
         uint objectIndex = (stride * id) + frame;
-        //std::clog << "objectIndex: " << objectIndex << std::endl;
-        //std::clog << "stride: " << stride << std::endl;
-        //std::clog << "idSize: " << _idSize << std::endl;
         return _objects.at(objectIndex);
-        //return _objects.at(id);
     }
     uint getSceneSize() {return _objects.size();}
     uint getIdSize() {return (_idSize+1);}
@@ -249,6 +337,7 @@ public:
     bool importModel(std::string path);
     bool importTexture(std::string path);
     bool loadImagePNG(const std::string filename);
+    void assignObjectTexture();
 
     bool exportPLY(const std::string filename, const uint frame);
     bool exportFrames(const std::string filename, QProgressBar* progressBar);
@@ -272,7 +361,7 @@ private:
 
     bool _hasPosition, _hasColor, _hasNormal;
     SceneObjects _sceneObjects;
-    GLubyte* _texture;
+    SceneTextures _sceneTextures;
 };
 
 #endif // MODELREADER_H
