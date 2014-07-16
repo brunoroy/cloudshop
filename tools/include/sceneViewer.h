@@ -100,6 +100,7 @@ private:
     bool _merge;
     int _objectSelected;
     uint _viewMode;
+    bool _wireframe;
 };
 
 #endif // SCENEVIEWER_H

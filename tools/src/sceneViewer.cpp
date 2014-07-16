@@ -17,7 +17,8 @@ SceneViewer::SceneViewer(Ui_MainWindow *userInterface, Ui_TransformsDialog *tran
     _merge(false),
     _objectSelected(-1),
     _pointSize(1.0f),
-    _viewMode(0)
+    _viewMode(0),
+    _wireframe(false)
 {
     _userInterface = userInterface;
     _transformsDialog = transformsDialog;
@@ -227,6 +228,11 @@ void SceneViewer::setShapeClipping(const bool clipping)
 
 void SceneViewer::drawGeometry(const uint povSize)
 {
+    if (_wireframe)
+        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+    else
+        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+
     for (uint i = 0; i < povSize; ++i)
     {
         Object object = _modelReader->getObject(_scenePlayer->getCurrentFrame(), i);
@@ -499,6 +505,11 @@ void SceneViewer::keyPressEvent(QKeyEvent* event)
                 if (_pointSize > 1.0f)
                     _pointSize--;
                 //std::clog << "pointSize: " << _pointSize << std::endl;
+            }
+            else if (event->key() == Qt::Key_W)
+            {
+                if (_viewMode == MODE_MESH)
+                    _wireframe = !_wireframe;
             }
         }
         break;
