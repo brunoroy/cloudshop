@@ -228,6 +228,7 @@ bool ModelReader::loadImagePNG(const std::string filename)
         }
     }
 
+    std::clog << filename << std::endl;
     Texture texture(image, filename, textureId, timestamp);
     _sceneTextures.addTexture(texture);
     //std::clog << "textures: " << _sceneTextures.getTextureSize() << std::endl;
@@ -237,6 +238,7 @@ bool ModelReader::loadImagePNG(const std::string filename)
 
 void ModelReader::assignObjectTexture()
 {
+    //std::clog << ((_sceneObjects.getSceneSize()-1) * 3) << " == " << _sceneTextures.getTextureSize() << std::endl;
     if (_sceneObjects.getSceneSize() == _sceneTextures.getTextureSize())
     {
         for (uint i = 0; i < _sceneObjects.getSceneSize(); ++i)
@@ -288,52 +290,64 @@ std::vector<std::string> ModelReader::split(const std::string input)
     return {std::istream_iterator<std::string>{streamInput}, std::istream_iterator<std::string>{}};
 }
 
-bool ModelReader::exportPLY(const std::string filename, const uint frame)
+bool ModelReader::exportPLY(const std::string filename, const uint frame, const uint pov)
 {
     if (!isSceneEmpty())
     {
-        Object object = _sceneObjects.getObject(frame);
-
-        std::string frameFilename(filename.substr(0, filename.find_last_of(".")));
-        frameFilename.append("_").append(std::to_string(frame)).append(".ply");
-        //std::clog << frameFilename << std::endl;
-
-        std::ofstream exportFile(frameFilename);
-        if (exportFile.is_open())
+        for (uint i = 0; i < pov; ++i)
         {
-            uint vertexCount = object.getVertexCount();
-            exportFile << "ply\nformat ascii 1.0\nelement vertex " << std::to_string(vertexCount) << std::endl;
-            if (_hasPosition)
-                exportFile << "property float x\nproperty float y\nproperty float z" << std::endl;
-            if (_hasNormal)
-                exportFile << "property float nx\nproperty float ny\nproperty float nz" << std::endl;
-            if (_hasColor)
-                exportFile << "property uchar red\nproperty uchar green\nproperty uchar blue" << std::endl;
-            exportFile << "end_header" << std::endl;
+            Object object = _sceneObjects.getObject(frame, i);
 
-            for (uint i = 0; i < vertexCount; ++i)
+            std::string frameFilename(filename.substr(0, filename.find_last_of(".")));
+            if (pov == 1)
+                frameFilename.append("_").append(std::to_string(frame)).append(".ply");
+            else
+                frameFilename.append("_").append(std::to_string(frame)).append("_pov").append(std::to_string(i)).append(".ply");
+            //std::clog << frameFilename << std::endl;
+
+            std::ofstream exportFile(frameFilename);
+            if (exportFile.is_open())
             {
-                Vertex v = object.getVertex(i);
-
+                uint vertexCount = object.getVertexCount();
+                exportFile << "ply\nformat ascii 1.0\nelement vertex " << std::to_string(vertexCount) << std::endl;
                 if (_hasPosition)
-                    exportFile << std::to_string(v.position.x) << " " << std::to_string(v.position.y) << " " << std::to_string(v.position.z) << " ";
+                    exportFile << "property float x\nproperty float y\nproperty float z" << std::endl;
                 if (_hasNormal)
-                    exportFile << std::to_string(v.normal.x) << " " << std::to_string(v.normal.y) << " " << std::to_string(v.normal.z) << " ";
+                    exportFile << "property float nx\nproperty float ny\nproperty float nz" << std::endl;
                 if (_hasColor)
-                    exportFile << std::to_string(v.color.x) << " " << std::to_string(v.color.y) << " " << std::to_string(v.color.z) << " ";
-                exportFile << std::endl;
+                    exportFile << "property uchar red\nproperty uchar green\nproperty uchar blue" << std::endl;
+                exportFile << "end_header" << std::endl;
+
+                for (uint i = 0; i < vertexCount; ++i)
+                {
+                    Vertex v = object.getVertex(i);
+
+                    if (_hasPosition)
+                        exportFile << std::to_string(v.position.x) << " " << std::to_string(v.position.y) << " " << std::to_string(v.position.z) << " ";
+                    if (_hasNormal)
+                        exportFile << std::to_string(v.normal.x) << " " << std::to_string(v.normal.y) << " " << std::to_string(v.normal.z) << " ";
+                    if (_hasColor)
+                        exportFile << std::to_string(v.color.x) << " " << std::to_string(v.color.y) << " " << std::to_string(v.color.z) << " ";
+                    exportFile << std::endl;
+                }
+                exportFile.close();
             }
-            exportFile.close();
         }
     }
 }
 
-bool ModelReader::exportFrames(const std::string filename, QProgressBar* progressBar)
+bool ModelReader::exportFrames(const std::string filename, QProgressBar* progressBar, const uint pov)
 {
-    uint frameCount = _sceneObjects.getSceneSize();
+    uint frameCount;
+    if (pov == 1)
+        frameCount = _sceneObjects.getSceneSize();
+    else
+        frameCount = _sceneObjects.getSceneSize() / pov;
+
     for (uint i = 0; i < frameCount; ++i)
     {
-        exportPLY(filename, i);
+        //for (uint j = 0; j < pov; ++j)
+        exportPLY(filename, i, pov);
         progressBar->setValue(i+1);
     }
 }

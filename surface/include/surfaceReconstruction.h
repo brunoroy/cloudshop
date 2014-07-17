@@ -1,6 +1,7 @@
 #ifndef SURFACERECONSTRUCTION_H
 #define SURFACERECONSTRUCTION_H
 
+#include "ui_mainWindow.h"
 #include "surfaceTriangulation.h"
 #include "modelReader.h"
 
@@ -19,7 +20,8 @@ public:
     ~SurfaceReconstruction();
 
     void writeMeshOutput(Mesh mesh, const std::string filename);
-    void reconstruct(SceneObjects& objects);
+    void writeTextureOutput(Object& object, const std::string filename);
+    void reconstruct(SceneObjects& objects, Ui_MainWindow userInterface);
     void generateMesh(Mesh mesh, Object& object);
 
 private:

@@ -1,9 +1,11 @@
 #include "surfaceReconstruction.h"
-
+#include "ui_mainWindow.h"
 #include "timer.h"
 
 #include <iostream>
 #include <fstream>
+
+#include <QFile>
 
 SurfaceReconstruction::SurfaceReconstruction()
 {
@@ -15,7 +17,7 @@ SurfaceReconstruction::~SurfaceReconstruction()
 
 CloudVolume SurfaceReconstruction::getCloudVolume(std::vector<glm::vec3> points)
 {
-    float resolution = 0.05f;
+    float resolution = 0.01f;
 
     CloudVolume cloudVolume;
     cloudVolume.minimum = points.at(0);
@@ -62,8 +64,7 @@ void SurfaceReconstruction::writeHeaderOutput(std::ofstream& outputFile, const u
 
 void SurfaceReconstruction::writeMeshOutput(Mesh mesh, const std::string filename)
 {
-    std::string meshFilename = filename.substr(0, filename.find(".")).append("geo_mesh.ply");
-    std::ofstream meshFile(meshFilename);
+    std::ofstream meshFile(filename);
 
     if (meshFile.is_open())
     {
@@ -78,6 +79,17 @@ void SurfaceReconstruction::writeMeshOutput(Mesh mesh, const std::string filenam
 
         meshFile.close();
     }
+}
+
+void SurfaceReconstruction::writeTextureOutput(Object &object, const std::string filename)
+{
+    std::string textureFilename(filename.substr(0, filename.find_last_of(".")));
+    textureFilename.append(".png");
+
+    std::string imageFilename(object.getTexture().getName());
+    QFile image(QString(imageFilename.c_str()));
+    image.rename(QString(textureFilename.c_str()));
+    //png_write_png();
 }
 
 void SurfaceReconstruction::generateMesh(Mesh mesh, Object& object)
@@ -95,42 +107,48 @@ void SurfaceReconstruction::generateMesh(Mesh mesh, Object& object)
     }
 }
 
-void SurfaceReconstruction::reconstruct(SceneObjects& objects)
+void SurfaceReconstruction::reconstruct(SceneObjects& objects, Ui_MainWindow userInterface)
 {
+    userInterface.progressBar->setMaximum(objects.getSceneSize());
     for (uint i = 0; i < objects.getSceneSize(); ++i)
     {
         Object& object = objects.getObject(i);
         std::vector<glm::vec3> points = object.getPositions();
         std::vector<glm::vec3> normals = object.getNormals();
-        std::clog << points.size() << " points have been read." << std::endl;
+        //std::clog << points.size() << " points have been read." << std::endl;
         CloudVolume cloudVolume = getCloudVolume(points);
-        std::clog << "volume: minimum[" << cloudVolume.minimum.x << "," << cloudVolume.minimum.y << "," << cloudVolume.minimum.z << "]";
-        std::clog << "; maximum[" << cloudVolume.maximum.x << "," << cloudVolume.maximum.y << "," << cloudVolume.maximum.z << "]";
-        std::clog << "; resolution(" << cloudVolume.resolution << ")." << std::endl;
+        //std::clog << "volume: minimum[" << cloudVolume.minimum.x << "," << cloudVolume.minimum.y << "," << cloudVolume.minimum.z << "]";
+        //std::clog << "; maximum[" << cloudVolume.maximum.x << "," << cloudVolume.maximum.y << "," << cloudVolume.maximum.z << "]";
+        //std::clog << "; resolution(" << cloudVolume.resolution << ")." << std::endl;
 
-        Timer buildSpatialGrid(true);
+        //Timer buildSpatialGrid(true);
         _surfaceTriangulation.reset(new SurfaceTriangulation(cloudVolume, points, normals));
-        auto elapsed = buildSpatialGrid.elapsed();
-        std::cout << "spatial grid: " << std::fixed << elapsed.count() << " ms." << std::endl;
+        //auto elapsed = buildSpatialGrid.elapsed();
+        //std::cout << "spatial grid: " << std::fixed << elapsed.count() << " ms." << std::endl;
         std::shared_ptr<MarchingCubeGrid> grid = _surfaceTriangulation->getMarchingCubeGrid();
 
         Mesh mesh;
         Timer computerIsoValuesTimer(true);
         grid->computeIsoValues(points, normals, cloudVolume.resolution);
-        elapsed = computerIsoValuesTimer.elapsed();
+        auto elapsed = computerIsoValuesTimer.elapsed();
         std::cout << "compute isovalues: " << std::fixed << elapsed.count() << " ms." << std::endl;
 
-        Timer triangulateTimer(true);
+        //Timer triangulateTimer(true);
         grid->triangulate(mesh);
-        elapsed = triangulateTimer.elapsed();
-        std::cout << "triangulation: " << std::fixed << elapsed.count() << " ms." << std::endl;
+        //elapsed = triangulateTimer.elapsed();
+        //std::cout << "triangulation: " << std::fixed << elapsed.count() << " ms." << std::endl;
 
-        Timer writeMeshTimer(true);
+        //Timer writeMeshTimer(true);
 
-        writeMeshOutput(mesh, "output/");
+        std::string meshFilename("output/");
+        meshFilename.append("cam0_").append(std::to_string(i)).append(".ply");
+        writeMeshOutput(mesh, meshFilename);
+        writeTextureOutput(object, meshFilename);
         generateMesh(mesh, object);
-        elapsed = writeMeshTimer.elapsed();
-        std::cout << "generating mesh: " << std::fixed << elapsed.count() << " ms." << std::endl;
+        //elapsed = writeMeshTimer.elapsed();
+        //std::cout << "generating mesh: " << std::fixed << elapsed.count() << " ms." << std::endl;
+
+        userInterface.progressBar->setValue(userInterface.progressBar->value()+1);
         //std::cout << "writing mesh file: " << std::fixed << elapsed.count() << " ms." << std::endl;
     }
  }

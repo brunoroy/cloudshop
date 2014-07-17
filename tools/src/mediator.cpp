@@ -173,6 +173,8 @@ void Mediator::importGeometry()
                 _userInterface.progressBar->setValue(_userInterface.progressBar->value()+1);
                 //_progressBar->updateValue();
             }
+            //_userInterface.statusBar->showMessage(message, 3000);
+            _sceneViewer->sortSceneObjects();
             toggleProgressBar();
             toggleScenePlayer();
             _sceneViewer->startAnimation();
@@ -217,7 +219,9 @@ void Mediator::importTexture()
 
 void Mediator::merge()
 {
+    toggleProgressBar();
     _sceneViewer->mergeObjects();
+    toggleProgressBar();
     setMatching(false);
     _userInterface.actionMatch->setEnabled(false);
 }
@@ -257,10 +261,12 @@ void Mediator::surfaceReconstruction()
     //surfaceReconstruction.reset(new SurfaceReconstruction());
 
     //uint currentFrame = _sceneViewer->getScenePlayer()->getCurrentFrame();
-    _sceneViewer->surfaceReconstruction();
+    toggleProgressBar();
+    _sceneViewer->surfaceReconstruction(_userInterface);
     _userInterface.actionModeMesh->setEnabled(true);
     _userInterface.actionModeTextured->setEnabled(true);
     _userInterface.actionModeMesh->setChecked(true);
+    toggleProgressBar();
 }
 
 void Mediator::about()

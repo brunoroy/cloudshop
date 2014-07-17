@@ -327,6 +327,8 @@ void SceneViewer::mergeObjects()
 
         uint frameCount = _scenePlayer->getFrameCount();// / povSize;
         SceneObjects sceneObjects;
+
+        _userInterface->progressBar->setMaximum(frameCount);
         for (uint f = 0; f < frameCount; ++f)
         {
             std::vector<Object> objects;
@@ -341,6 +343,7 @@ void SceneViewer::mergeObjects()
 
             //std::clog << "vertices: " << object.getVertexCount() << std::endl;
             sceneObjects.addObject(object);
+            _userInterface->progressBar->setValue(_userInterface->progressBar->value()+1);
         }
 
         //std::clog << "objects: " << sceneObjects.getSceneSize() << std::endl;
@@ -538,6 +541,11 @@ bool SceneViewer::isReady()
     return _scenePlayer->isReady();
 }
 
+void SceneViewer::sortSceneObjects()
+{
+    _modelReader->sortSceneObjects();
+}
+
 void SceneViewer::importGeometry(const std::string filename)
 {
     _modelReader->importModel(filename);
@@ -560,15 +568,16 @@ void SceneViewer::assignObjectTexture()
 
 void SceneViewer::exportGeometry(const std::string filename, const uint currentFrame)
 {
+    uint povSize = _modelReader->getSceneObjects().getIdSize();
     if (currentFrame != -1)
-        _modelReader->exportPLY(filename, currentFrame);
+        _modelReader->exportPLY(filename, currentFrame, povSize);
     else
-        _modelReader->exportFrames(filename, _userInterface->progressBar);
+        _modelReader->exportFrames(filename, _userInterface->progressBar, povSize);
 }
 
-void SceneViewer::surfaceReconstruction()
+void SceneViewer::surfaceReconstruction(Ui_MainWindow _userInterface)
 {
     SurfaceReconstruction surfaceReconstruction;
-    surfaceReconstruction.reconstruct(_modelReader->getSceneObjects());
+    surfaceReconstruction.reconstruct(_modelReader->getSceneObjects(), _userInterface);
     _viewMode = MODE_MESH;
 }

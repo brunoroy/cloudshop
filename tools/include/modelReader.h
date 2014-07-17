@@ -294,7 +294,7 @@ public:
     void addObject(Object object)
     {
         _objects.push_back(object);
-        std::sort(_objects.begin(), _objects.end(), Object::sortIdTimestamp);
+        //std::sort(_objects.begin(), _objects.end(), Object::sortIdTimestamp);
 
         uint lastId = _objects.at(_objects.size()-1).getId();
         if (lastId > _idSize)
@@ -314,6 +314,8 @@ public:
         _objects.clear();
         _idSize = 0;
     }
+
+    void sort() {std::sort(_objects.begin(), _objects.end(), Object::sortIdTimestamp);}
 
 private:
 
@@ -339,8 +341,8 @@ public:
     bool loadImagePNG(const std::string filename);
     void assignObjectTexture();
 
-    bool exportPLY(const std::string filename, const uint frame);
-    bool exportFrames(const std::string filename, QProgressBar* progressBar);
+    bool exportPLY(const std::string filename, const uint frame, const uint pov = 1);
+    bool exportFrames(const std::string filename, QProgressBar* progressBar, const uint pov = 1);
 
     bool isSceneEmpty() {return (_sceneObjects.getSceneSize() == 0);}
     SceneObjects& getSceneObjects() {return _sceneObjects;}
@@ -355,6 +357,7 @@ public:
             _sceneObjects.getObject(i).setClipped(false);
         }
     }
+    void sortSceneObjects() {_sceneObjects.sort();}
 
 private:
     std::vector<std::string> split(const std::string input);

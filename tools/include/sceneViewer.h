@@ -34,9 +34,10 @@ public:
     void mergeObjects();
     void resetTransforms();
     void exportGeometry(const std::string filename, const uint currentFrame = -1);
-    void surfaceReconstruction();
+    void surfaceReconstruction(Ui_MainWindow _userInterface);
 
     void setViewMode(uint mode) {_viewMode = mode;}
+    void sortSceneObjects();
 
 public slots:
     void setMatching(const bool matching);
