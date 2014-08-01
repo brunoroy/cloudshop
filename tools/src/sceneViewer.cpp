@@ -153,6 +153,7 @@ void SceneViewer::loadShaders()
     _alphaID = glGetUniformLocation(_programID, "alpha");
     _objectMatrixID = glGetUniformLocation(_programID, "objectMatrix");
     _mvMatrixID = glGetUniformLocation(_programID, "mvMatrix");
+    _texCoordID = glGetUniformLocation(_programID, "texCoord");
 
     glDeleteShader(_shaderID[0]);
     glDeleteShader(_shaderID[1]);
@@ -244,7 +245,7 @@ void SceneViewer::drawGeometry(const uint povSize)
             glBindTexture(GL_TEXTURE_2D, object.getTexture().getTextureId());
             glUniform1i(uniformTex0, 0);*/
             glActiveTexture(GL_TEXTURE0);
-            GLint textureId = glGetUniformLocation(_programID, "textureColor");
+            GLint textureId = glGetUniformLocation(_programID, "textureMap");
             glUniform1i(textureId, 0);
             glBindTexture(GL_TEXTURE_2D, object.getTexture().getTextureId());
         }
@@ -266,6 +267,10 @@ void SceneViewer::drawGeometry(const uint povSize)
             glBufferData(GL_ARRAY_BUFFER, object.getVertexCount() * 3 * sizeof(GLfloat), &object.getNormals().at(0), GL_STREAM_DRAW);
         else
             glBufferData(GL_ARRAY_BUFFER, object.getMeshVertexCount() * 3 * sizeof(GLfloat), &object.getMeshNormals().at(0), GL_STREAM_DRAW);
+
+        /*glBindBuffer(GL_ARRAY_BUFFER, _textureBuffer);
+        if (_viewMode == MODE_TEXTURED)
+            glBufferData(GL_ARRAY_BUFFER, object.getVertexCount() * 2 * sizeof(GLfloat), &object.getNormals().at(0), GL_STREAM_DRAW);*/
 
         glUseProgram(_programID);
 
@@ -302,6 +307,10 @@ void SceneViewer::drawGeometry(const uint povSize)
         glEnableVertexAttribArray(2);
         glBindBuffer(GL_ARRAY_BUFFER, _normalBuffer);
         glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
+
+        glEnableVertexAttribArray(3);
+        glBindBuffer(GL_ARRAY_BUFFER, _textureBuffer);
+        glVertexAttribPointer(3, 2, GL_FLOAT, GL_FALSE, 0, (void*)0);
 
         //std::clog << "vertices: " << object.getVertexCount() << std::endl;
 

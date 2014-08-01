@@ -18,10 +18,14 @@ struct ShaderSources
         uniform mat4 pmvMatrix;
         uniform mat4 objectMatrix;
         uniform mat4 mvMatrix;
-
         uniform float alpha;
+        //uniform sampler2D texCoord;
+
+
         out vec4 vertexColor;
         smooth out vec3 smoothNormal;
+        //out vec2 texCoordUV;
+        smooth out vec2 texCoordUV;
 
         void main()
         {
@@ -32,7 +36,8 @@ struct ShaderSources
             vec4 result = normalMatrix * vec4(normal, 0.0);
             smoothNormal = result.xyz;
 
-            gl_TexCoord[0] = gl_MultiTexCoord0;
+            //vec2 texSample = textureQueryLod(texCoord, VertexIn.texCoord.xy);
+            texCoordUV = texCoord;
         }
     )"};
 
@@ -43,14 +48,18 @@ struct ShaderSources
         #version 330 core
 
         in vec4 vertexColor;
-        out vec4 fragmentColor;
+        in vec2 texCoord;
 
-        uniform sampler2D textureColor;
+        out vec4 fragmentColor;
+        uniform sampler2D textureMap;
 
         void main()
         {
             //fragmentColor = vertexColor;
-            fragmentColor = texture2D(textureColor, gl_TexCoord[0].st);
+            //fragmentColor = texture2D(textureColor, gl_TexCoord[0].st);
+            //fragmentColor = vec4(textureColor, 0.0, 0.0);
+            fragmentColor = texture(textureMap, texCoord);
+            //textureQueryLevels
         }
     )"};
 };

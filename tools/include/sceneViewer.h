@@ -65,6 +65,7 @@ private:
     GLuint _vertexBuffer;
     GLuint _colorBuffer;
     GLuint _normalBuffer;
+    GLuint _textureBuffer;
     GLuint _shaderID[2];
 
     GLuint _programID;
@@ -72,6 +73,7 @@ private:
     GLuint _alphaID;
     GLuint _objectMatrixID;
     GLuint _mvMatrixID;
+    GLuint _texCoordID;
 
     glm::mat4 _pmvMatrix = glm::mat4(1.0f);
     glm::mat4 _mvMatrix = glm::mat4(1.0f);

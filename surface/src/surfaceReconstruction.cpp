@@ -17,7 +17,7 @@ SurfaceReconstruction::~SurfaceReconstruction()
 
 CloudVolume SurfaceReconstruction::getCloudVolume(std::vector<glm::vec3> points)
 {
-    float resolution = 0.01f;
+    float resolution = 0.05f;
 
     CloudVolume cloudVolume;
     cloudVolume.minimum = points.at(0);
