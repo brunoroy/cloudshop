@@ -199,6 +199,7 @@ void Mediator::importTexture()
 
         if (!textureFiles.isEmpty())
         {
+            std::clog << "\nbefore sort:" << std::endl;
             toggleProgressBar(textureFiles.size());
             for (uint i = 0; i < textureFiles.size(); ++i)
             {
@@ -209,6 +210,7 @@ void Mediator::importTexture()
                 _userInterface.progressBar->setValue(_userInterface.progressBar->value()+1);
             }
             _sceneViewer->sortObjectTextures();
+            std::clog << "\nafter sort:" << std::endl;
             _sceneViewer->printTextures();
             _sceneViewer->assignObjectTexture();
             toggleProgressBar();

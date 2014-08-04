@@ -153,7 +153,7 @@ void SceneViewer::loadShaders()
     _alphaID = glGetUniformLocation(_programID, "alpha");
     _objectMatrixID = glGetUniformLocation(_programID, "objectMatrix");
     _mvMatrixID = glGetUniformLocation(_programID, "mvMatrix");
-    _texCoordID = glGetUniformLocation(_programID, "texCoord");
+    //_texCoordID = glGetUniformLocation(_programID, "texCoord");
 
     glDeleteShader(_shaderID[0]);
     glDeleteShader(_shaderID[1]);
@@ -247,7 +247,7 @@ void SceneViewer::drawGeometry(const uint povSize)
             glActiveTexture(GL_TEXTURE0);
             GLint textureId = glGetUniformLocation(_programID, "textureMap");
             glUniform1i(textureId, 0);
-            glBindTexture(GL_TEXTURE_2D, object.getTexture().getTextureId());
+            glBindTexture(GL_TEXTURE_2D, object.getTexture(i).getTextureId());
         }
 
         glBindBuffer(GL_ARRAY_BUFFER, _vertexBuffer);
@@ -308,9 +308,9 @@ void SceneViewer::drawGeometry(const uint povSize)
         glBindBuffer(GL_ARRAY_BUFFER, _normalBuffer);
         glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
 
-        glEnableVertexAttribArray(3);
+        /*glEnableVertexAttribArray(3);
         glBindBuffer(GL_ARRAY_BUFFER, _textureBuffer);
-        glVertexAttribPointer(3, 2, GL_FLOAT, GL_FALSE, 0, (void*)0);
+        glVertexAttribPointer(3, 2, GL_FLOAT, GL_FALSE, 0, (void*)0);*/
 
         //std::clog << "vertices: " << object.getVertexCount() << std::endl;
 

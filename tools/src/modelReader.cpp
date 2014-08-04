@@ -245,7 +245,7 @@ void ModelReader::assignObjectTexture()
         {
             for (uint j = 0; j < 3; ++j)
             {
-                uint textureId = i * 3 + j;
+                uint textureId = j * _sceneObjects.getSceneSize() + i;
                 std::clog << "textureId: " << textureId << std::endl;
                 _sceneObjects.getObject(i).addTexture(_sceneTextures.getTexture(textureId));
             }

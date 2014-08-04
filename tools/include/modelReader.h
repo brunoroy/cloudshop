@@ -64,12 +64,12 @@ public:
 
     static bool sortIdTimestamp(const Texture& t1, const Texture& t2)
     {
-        if (t1._ts < t2._ts)
+        if (t1._id < t2._id)
             return true;
-        if (t1._ts > t2._ts)
+        if (t1._id > t2._id)
             return false;
 
-        if (t1._id < t2._id)
+        if (t1._ts < t2._ts)
             return true;
 
         return false;
@@ -149,7 +149,8 @@ public:
 
     //void setTexture(Texture texture) {_texture = texture;}
     void addTexture(Texture texture) {_textures.push_back(texture);}
-    Texture getTexture(const uint index = 0) {return _textures.at(index);}
+    Texture getTexture(const uint index) {return _textures.at(index);}
+
     uint getTextureCount() {return _textures.size();}
 
     uint getVertexCount() {return _vertexCount;}

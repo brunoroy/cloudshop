@@ -88,7 +88,7 @@ void SurfaceReconstruction::writeTextureOutput(Object &object, const std::string
     textureFilename.append("_pov").append(std::to_string(index));
     textureFilename.append(".png");
 
-    std::string imageFilename(object.getTexture().getName());
+    std::string imageFilename(object.getTexture(index).getName());
     QFile image(QString(imageFilename.c_str()));
     image.rename(QString(textureFilename.c_str()));
     //png_write_png();
