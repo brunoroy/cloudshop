@@ -64,12 +64,12 @@ public:
 
     static bool sortIdTimestamp(const Texture& t1, const Texture& t2)
     {
-        if (t1._id < t2._id)
+        if (t1._ts < t2._ts)
             return true;
-        if (t1._id > t2._id)
+        if (t1._ts > t2._ts)
             return false;
 
-        if (t1._ts < t2._ts)
+        if (t1._id < t2._id)
             return true;
 
         return false;
@@ -147,8 +147,10 @@ public:
         _vertexCount++;
     }
 
-    void setTexture(Texture texture) {_texture = texture;}
-    Texture getTexture() {return _texture;}
+    //void setTexture(Texture texture) {_texture = texture;}
+    void addTexture(Texture texture) {_textures.push_back(texture);}
+    Texture getTexture(const uint index = 0) {return _textures.at(index);}
+    uint getTextureCount() {return _textures.size();}
 
     uint getVertexCount() {return _vertexCount;}
     uint getMeshVertexCount() {return _meshPositions.size();}
@@ -241,7 +243,7 @@ public:
     }
 
 private:
-    Texture _texture;
+    std::vector<Texture> _textures;
 
     std::vector<Vertex> _meshVertices;
     std::vector<glm::vec3> _meshPositions;
@@ -269,7 +271,7 @@ public:
     void addTexture(Texture texture)
     {
         _textures.push_back(texture);
-        std::sort(_textures.begin(), _textures.end(), Texture::sortIdTimestamp);
+        //std::sort(_textures.begin(), _textures.end(), Texture::sortIdTimestamp);
 
         uint lastId = _textures.at(_textures.size()-1).getId();
         if (lastId > _idSize)
@@ -277,8 +279,9 @@ public:
     }
 
     Texture getTexture(const uint index) {return _textures.at(index);}
-
     uint getTextureSize() {return _textures.size();}
+
+    void sort() {std::sort(_textures.begin(), _textures.end(), Texture::sortIdTimestamp);}
 
 private:
     std::vector<Texture> _textures;
@@ -358,6 +361,13 @@ public:
         }
     }
     void sortSceneObjects() {_sceneObjects.sort();}
+    void sortObjectTextures() {_sceneTextures.sort();}
+
+    void printTextures()
+    {
+        for (uint i = 0; i < _sceneTextures.getTextureSize(); ++i)
+            std::clog << _sceneTextures.getTexture(i).getName() << std::endl;
+    }
 
 private:
     std::vector<std::string> split(const std::string input);

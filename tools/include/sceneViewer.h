@@ -38,6 +38,9 @@ public:
 
     void setViewMode(uint mode) {_viewMode = mode;}
     void sortSceneObjects();
+    void sortObjectTextures();
+
+    void printTextures();
 
 public slots:
     void setMatching(const bool matching);

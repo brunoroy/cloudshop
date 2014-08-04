@@ -169,9 +169,10 @@ void Mediator::importGeometry()
                 path.append("/").append(geometryFiles.at(i).toStdString());
                 //std::clog << path << std::endl;
                 _sceneViewer->importGeometry(path);
-                _sceneViewer->update();
+                //_sceneViewer->update();
                 _userInterface.progressBar->setValue(_userInterface.progressBar->value()+1);
                 //_progressBar->updateValue();
+                _userInterface.statusBar->showMessage(QString("Importing %1 (%2/%3)").arg(geometryFiles.at(i), QString::number(i+1), QString::number(geometryFiles.size())), 3000);
             }
             //_userInterface.statusBar->showMessage(message, 3000);
             _sceneViewer->sortSceneObjects();
@@ -207,6 +208,8 @@ void Mediator::importTexture()
                 //_sceneViewer->importGeometry(path);
                 _userInterface.progressBar->setValue(_userInterface.progressBar->value()+1);
             }
+            _sceneViewer->sortObjectTextures();
+            _sceneViewer->printTextures();
             _sceneViewer->assignObjectTexture();
             toggleProgressBar();
             QString message = QString("%1 files loaded.").arg(QString::number(textureFiles.size()));

@@ -555,6 +555,11 @@ void SceneViewer::sortSceneObjects()
     _modelReader->sortSceneObjects();
 }
 
+void SceneViewer::sortObjectTextures()
+{
+    _modelReader->sortObjectTextures();
+}
+
 void SceneViewer::importGeometry(const std::string filename)
 {
     _modelReader->importModel(filename);
@@ -568,6 +573,11 @@ void SceneViewer::importTexture(const std::string filename)
         std::clog << "file loaded." << std::endl;
     else
         std::clog << "file not loaded." << std::endl;*/
+}
+
+void SceneViewer::printTextures()
+{
+    _modelReader->printTextures();
 }
 
 void SceneViewer::assignObjectTexture()

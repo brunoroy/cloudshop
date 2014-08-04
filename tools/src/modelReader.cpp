@@ -239,15 +239,20 @@ bool ModelReader::loadImagePNG(const std::string filename)
 void ModelReader::assignObjectTexture()
 {
     //std::clog << ((_sceneObjects.getSceneSize()-1) * 3) << " == " << _sceneTextures.getTextureSize() << std::endl;
-    if (_sceneObjects.getSceneSize() == _sceneTextures.getTextureSize())
-    {
+    /*if (_sceneObjects.getSceneSize() == _sceneTextures.getTextureSize())
+    {*/
         for (uint i = 0; i < _sceneObjects.getSceneSize(); ++i)
         {
-            _sceneObjects.getObject(i).setTexture(_sceneTextures.getTexture(i));
+            for (uint j = 0; j < 3; ++j)
+            {
+                uint textureId = i * 3 + j;
+                std::clog << "textureId: " << textureId << std::endl;
+                _sceneObjects.getObject(i).addTexture(_sceneTextures.getTexture(textureId));
+            }
         }
-    }
+    /*}
     else
-        std::clog << "texture set does not match object set." << std::endl;
+        std::clog << "texture set does not match object set." << std::endl;*/
 }
 
 bool ModelReader::isFormatPNG(const std::string filename)

@@ -17,7 +17,7 @@ SurfaceReconstruction::~SurfaceReconstruction()
 
 CloudVolume SurfaceReconstruction::getCloudVolume(std::vector<glm::vec3> points)
 {
-    float resolution = 0.05f;
+    float resolution = 0.01f;
 
     CloudVolume cloudVolume;
     cloudVolume.minimum = points.at(0);
@@ -81,9 +81,11 @@ void SurfaceReconstruction::writeMeshOutput(Mesh mesh, const std::string filenam
     }
 }
 
-void SurfaceReconstruction::writeTextureOutput(Object &object, const std::string filename)
+void SurfaceReconstruction::writeTextureOutput(Object &object, const std::string filename, const uint index)
 {
+    //object.getTexture(index).getName()
     std::string textureFilename(filename.substr(0, filename.find_last_of(".")));
+    textureFilename.append("_pov").append(std::to_string(index));
     textureFilename.append(".png");
 
     std::string imageFilename(object.getTexture().getName());
@@ -143,7 +145,13 @@ void SurfaceReconstruction::reconstruct(SceneObjects& objects, Ui_MainWindow use
         std::string meshFilename("output/");
         meshFilename.append("cam0_").append(std::to_string(i)).append(".ply");
         writeMeshOutput(mesh, meshFilename);
-        writeTextureOutput(object, meshFilename);
+
+        for (uint j = 0; j < objects.getObject(i).getTextureCount(); ++j)
+        {
+            std::clog << "texture: " << objects.getObject(i).getTexture(j).getName() << std::endl;
+            writeTextureOutput(object, meshFilename, j);
+        }
+
         generateMesh(mesh, object);
         //elapsed = writeMeshTimer.elapsed();
         //std::cout << "generating mesh: " << std::fixed << elapsed.count() << " ms." << std::endl;

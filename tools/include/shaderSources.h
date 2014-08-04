@@ -19,7 +19,7 @@ struct ShaderSources
         uniform mat4 objectMatrix;
         uniform mat4 mvMatrix;
         uniform float alpha;
-        //uniform sampler2D texCoord;
+        uniform sampler2D texCoord;
 
 
         out vec4 vertexColor;
@@ -55,10 +55,10 @@ struct ShaderSources
 
         void main()
         {
-            //fragmentColor = vertexColor;
+            fragmentColor = vertexColor;
             //fragmentColor = texture2D(textureColor, gl_TexCoord[0].st);
             //fragmentColor = vec4(textureColor, 0.0, 0.0);
-            fragmentColor = texture(textureMap, texCoord);
+            //fragmentColor = texture(textureMap, texCoord);
             //textureQueryLevels
         }
     )"};

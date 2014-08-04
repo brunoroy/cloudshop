@@ -20,7 +20,7 @@ public:
     ~SurfaceReconstruction();
 
     void writeMeshOutput(Mesh mesh, const std::string filename);
-    void writeTextureOutput(Object& object, const std::string filename);
+    void writeTextureOutput(Object& object, const std::string filename, const uint index);
     void reconstruct(SceneObjects& objects, Ui_MainWindow userInterface);
     void generateMesh(Mesh mesh, Object& object);
 
